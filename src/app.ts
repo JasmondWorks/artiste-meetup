@@ -2,7 +2,6 @@ import "dotenv/config";
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import connectToDatabase from "./config/db.config";
 import v1Routes from "./routes/v1.route";
 import { globalErrorHandler } from "./middlewares/error.middleware";
 import { AppError } from "./utils/app-error.util";
@@ -10,19 +9,43 @@ import swaggerSpec from "./config/swagger.config";
 
 const app = express();
 
-connectToDatabase();
+// ---------------------------------------------------------------------------
+// CORS — must be applied before any routes so preflight OPTIONS requests are
+// handled correctly. Vercel can silently drop OPTIONS before Express sees them
+// unless we register app.options("*", cors()) explicitly.
+// ---------------------------------------------------------------------------
+const ALLOWED_ORIGINS = [
+  process.env.CLIENT_URL,          // production frontend (set in Vercel dashboard)
+  "http://localhost:3000",
+  "http://localhost:5173",          // Vite default
+  "http://localhost:8000",          // local Swagger / API port
+].filter(Boolean) as string[];
 
-app.use(cors({
-  origin: process.env.CLIENT_URL || true, // `true` reflects request origin — set CLIENT_URL in production
-  credentials: true,                      // required for httpOnly cookie to be sent/received
-}));
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow server-to-server requests (no Origin header) and listed origins
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin '${origin}' not allowed`));
+    }
+  },
+  credentials: true,               // required for httpOnly refresh-token cookie
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // explicit preflight handler
+
 app.use(express.json());
-app.use(cookieParser());                  // required for req.cookies (refresh token reads)
+app.use(cookieParser());             // required for req.cookies (refresh token reads)
 
-// Custom Swagger UI handler — bypasses swagger-ui-express entirely.
-// @vercel/node (ncc) cannot serve the local swagger-ui-dist static files at
-// runtime, so we load all UI assets from a pinned CDN and embed the spec JSON
-// directly in the page. No filesystem access or extra network requests needed.
+// ---------------------------------------------------------------------------
+// Swagger UI — custom CDN handler, bypasses swagger-ui-express entirely.
+// @vercel/node cannot serve local swagger-ui-dist static files; all UI assets
+// are loaded from a pinned CDN and the spec JSON is embedded directly in the page.
+// ---------------------------------------------------------------------------
 const SWAGGER_CDN = "https://unpkg.com/swagger-ui-dist@5.32.1";
 app.get("/api-docs", (_, res) => {
   res.setHeader("Content-Type", "text/html");

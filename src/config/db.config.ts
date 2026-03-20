@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import config from "./env.config";
 
 const connectToDatabase = async () => {
+  // Guard: if already connected, skip — prevents pool exhaustion across
+  // serverless invocations where the module may be reused between requests.
+  if (mongoose.connection.readyState === 1) return;
+
   try {
     await mongoose.connect(config.db.url);
     console.log("Connected to MongoDB");
