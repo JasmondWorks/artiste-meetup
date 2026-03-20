@@ -33,6 +33,10 @@ app.use(
 
 app.use("/api/v1", v1Routes);
 
+app.get("/", (_, res) => {
+  res.status(200).json({ ok: true, message: "Welcome to the Artiste Meetup API", docs: "/api-docs" });
+});
+
 /**
  * @openapi
  * /health:
