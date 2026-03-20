@@ -1,0 +1,20 @@
+# Source files (Vercel bundles from api/index.ts — src/ is NOT deployed as-is)
+src/
+
+# Local scripts (seeding is not available in production)
+src/scripts/
+
+# Documentation
+docs/
+*.md
+
+# Local environment (set these in the Vercel dashboard instead)
+.env
+.env.*
+
+# Build artifacts (Vercel performs its own bundle step)
+dist/
+
+# Dev tooling
+.vscode/
+.idea/

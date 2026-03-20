@@ -1,6 +1,5 @@
 import { MongooseRepository } from "@/utils/crud.util";
-import { IDepartment } from "@/modules/departments/department.model";
-import { IUser } from "@/modules/user/models/user.model";
+import { IUser } from "@/modules/user/user.model";
 
 interface DepartmentTemplate {
   name: string;
@@ -8,10 +7,13 @@ interface DepartmentTemplate {
   description: string;
 }
 
+// TODO: implement once the departments module is added
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const generateDepartment = async (
   template: DepartmentTemplate,
   users: IUser[],
-  departmentRepository: MongooseRepository<IDepartment>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  departmentRepository: MongooseRepository<any>,
 ) => {
   return departmentRepository.create({
     name: template.name,
