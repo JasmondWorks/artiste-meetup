@@ -20,10 +20,18 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());                  // required for req.cookies (refresh token reads)
 
+// swagger-ui-express's local static serve fails on Vercel because @vercel/node
+// resolves __dirname differently. Load the UI assets from CDN instead.
+const SWAGGER_CDN = "https://unpkg.com/swagger-ui-dist@5.32.1";
 app.use(
   "/api-docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
+    customCssUrl: `${SWAGGER_CDN}/swagger-ui.css`,
+    customJs: [
+      `${SWAGGER_CDN}/swagger-ui-bundle.js`,
+      `${SWAGGER_CDN}/swagger-ui-standalone-preset.js`,
+    ],
     swaggerOptions: {
       persistAuthorization: true, // keeps Bearer token across page refreshes
       withCredentials: true,      // sends httpOnly cookies (refresh token) from Swagger UI
