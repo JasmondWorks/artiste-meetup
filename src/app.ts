@@ -18,7 +18,8 @@ const ALLOWED_ORIGINS = [
   process.env.CLIENT_URL,          // production frontend (set in Vercel dashboard)
   "http://localhost:3000",
   "http://localhost:5173",          // Vite default
-  "http://localhost:8000",          // local Swagger / API port
+  "http://localhost:8000",          // local Swagger / API port,
+  "https://artiste-meetup.vercel.app", // deployed Swagger UI
 ].filter(Boolean) as string[];
 
 const corsOptions: cors.CorsOptions = {
