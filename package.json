@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "tsc && tsc-alias",
+    "vercel-build": "npm run build",
     "dev": "npx ts-node-dev -r dotenv/config -r tsconfig-paths/register --files src/server.ts",
     "seedData": "npx ts-node -r dotenv/config -r tsconfig-paths/register src/scripts/seed.ts",
     "seedAdmin": "npx ts-node -r dotenv/config -r tsconfig-paths/register src/scripts/seeding/super-admin.seeder.ts"

@@ -1,3 +1,6 @@
+# TypeScript source — Vercel runs our pre-compiled dist/ output, not the raw source
+src/
+
 # Documentation
 docs/
 *.md
@@ -5,9 +8,6 @@ docs/
 # Local environment (set these in the Vercel dashboard instead)
 .env
 .env.*
-
-# Build artifacts (Vercel performs its own bundle step from src/)
-dist/
 
 # Dev tooling
 .vscode/
