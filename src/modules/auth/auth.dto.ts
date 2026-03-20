@@ -15,3 +15,12 @@ export class LoginResponseDto {
   accessToken!: string;
   user!: User;
 }
+
+export class VerifyEmailDto {
+  email!: string;
+  otp!: string;
+}
+
+export class ResendOTPDto {
+  email!: string;
+}

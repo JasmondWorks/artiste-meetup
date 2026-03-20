@@ -52,7 +52,7 @@ npx tsc --init
 
 ```bash
 
-npm install express mongoose dotenv cors bcrypt jsonwebtoken ms express-validator swagger-jsdoc swagger-ui-express
+npm install express mongoose dotenv cors cookie-parser bcrypt jsonwebtoken ms express-validator swagger-jsdoc swagger-ui-express
 
 ```
 
@@ -60,7 +60,7 @@ npm install express mongoose dotenv cors bcrypt jsonwebtoken ms express-validato
 
 ```bash
 
-npm install -D typescript ts-node-dev tsconfig-paths @types/node @types/express @types/cors @types/bcrypt @types/jsonwebtoken @types/ms @types/swagger-jsdoc @types/swagger-ui-express @faker-js/faker
+npm install -D typescript ts-node-dev tsconfig-paths @types/node @types/express @types/cors @types/cookie-parser @types/bcrypt @types/jsonwebtoken @types/ms @types/swagger-jsdoc @types/swagger-ui-express @faker-js/faker
 
 ```
 
@@ -89,6 +89,8 @@ npm install -D typescript ts-node-dev tsconfig-paths @types/node @types/express 
 | `swagger-jsdoc`      | Runtime | Generate OpenAPI spec from JSDoc comments in route files           |
 
 | `swagger-ui-express` | Runtime | Serve interactive Swagger UI at `/api-docs`                        |
+
+| `cookie-parser`      | Runtime | Parse `Cookie` header into `req.cookies` (required for refresh token reads) |
 
 | `typescript`         | Dev     | TypeScript compiler                                                |
 
@@ -297,6 +299,10 @@ import "dotenv/config";
 
 import express, { NextFunction, Request, Response } from "express";
 
+import cors from "cors";
+
+import cookieParser from "cookie-parser";
+
 import connectToDatabase from "./config/db.config";
 
 import v1Routes from "./routes/v1.route";
@@ -313,7 +319,17 @@ const app = express();
 
 connectToDatabase();
 
+app.use(cors({
+
+  origin: process.env.CLIENT_URL || true, // reflect origin in dev; set CLIENT_URL in prod
+
+  credentials: true,                      // required for httpOnly cookie to be sent/received
+
+}));
+
 app.use(express.json());
+
+app.use(cookieParser());                  // required for req.cookies (refresh token reads)
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -343,6 +359,10 @@ export default app;
 - 404 handler catches unmatched routes
 
 - `globalErrorHandler` is the single error exit for the entire app
+
+- `cors({ credentials: true })` is required so browsers accept `Set-Cookie` responses
+
+- `cookieParser()` must come before routes so `req.cookies` is populated for refresh token reads
 
 ---
 
@@ -1145,6 +1165,67 @@ export const sendSuccess = (
 
 ---
 
+## Auth Pattern
+
+### Token Strategy
+
+- **Access token** — short-lived JWT returned in the **response body**. Client stores it in memory and sends as `Authorization: Bearer <token>` on every request.
+
+- **Refresh token** — long-lived JWT stored in an **httpOnly cookie** (inaccessible to JS). Sent automatically by the browser on every request to the same origin.
+
+| Token        | Storage        | Lifetime | Sent via                        |
+| ------------ | -------------- | -------- | --------------------------------|
+| Access token | Client memory  | 1 hour   | `Authorization: Bearer` header  |
+| Refresh token| httpOnly cookie| 7 days   | Cookie (automatic)              |
+
+### Login / Register flow
+
+```typescript
+// auth.controller.ts — login handler
+const { user, tokens } = await this.authService.login(req.body);
+
+res.cookie("refreshToken", tokens.refreshToken, {
+  httpOnly: true,                           // JS cannot access this cookie
+  secure: config.env === "production",      // HTTPS only in production
+  maxAge: 7 * 24 * 60 * 60 * 1000,         // 7 days in ms
+});
+
+sendSuccess(res, { accessToken: tokens.accessToken, user }, "Login successful");
+```
+
+> **Response body** contains only the `accessToken`. The `refreshToken` is silently stored as an httpOnly cookie.
+
+### Refresh token flow
+
+```typescript
+// auth.controller.ts — handleRefreshToken handler
+const refreshToken = req.cookies?.["refreshToken"]; // populated by cookie-parser
+if (!refreshToken) return next(new AppError("No refresh token", 401));
+
+const { user, tokens } = await this.authService.refreshTokens(refreshToken);
+
+res.cookie("refreshToken", tokens.refreshToken, { httpOnly: true, ... }); // rotate
+sendSuccess(res, { accessToken: tokens.accessToken, user }, "Token refreshed");
+```
+
+### Logout
+
+```typescript
+res.clearCookie("refreshToken");
+```
+
+### Required middleware in `app.ts`
+
+```typescript
+app.use(cors({ origin: process.env.CLIENT_URL || true, credentials: true }));
+// credentials:true  → browser accepts Set-Cookie from cross-origin responses
+
+app.use(cookieParser());
+// Parses Cookie header → populates req.cookies (required before any route that reads cookies)
+```
+
+---
+
 ## Middlewares
 
 ### `auth.middleware.ts` — `protect` + `restrictTo`
@@ -1154,7 +1235,7 @@ import { NextFunction, Request, Response } from "express";
 
 import jwt from "jsonwebtoken";
 
-import appConfig from "../config/app.config";
+import appConfig from "../config/env.config";
 
 import { AppError } from "../utils/app-error.util";
 

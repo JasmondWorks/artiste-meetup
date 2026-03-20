@@ -1,14 +1,17 @@
-export interface BaseUser {
+export interface User {
   id: string;
   name: string;
   email: string;
+  role: UserRole;
+  isEmailVerified: boolean;
+  isFirstLogin: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export enum UserRole {
-  APPLICANT = "APPLICANT",
-  EMPLOYEE = "EMPLOYEE",
+  CUSTOMER = "CUSTOMER",
+  ARTISTE = "ARTISTE",
   ADMIN = "ADMIN",
   SUPER_ADMIN = "SUPER_ADMIN",
 }
@@ -16,20 +19,6 @@ export enum UserRole {
 export const userRoles = [
   UserRole.SUPER_ADMIN,
   UserRole.ADMIN,
-  UserRole.EMPLOYEE,
-  UserRole.APPLICANT,
+  UserRole.ARTISTE,
+  UserRole.CUSTOMER,
 ];
-
-export interface Applicant extends BaseUser {
-  role: UserRole.APPLICANT;
-}
-
-export interface Employee extends BaseUser {
-  role: UserRole.EMPLOYEE;
-}
-
-export interface Admin extends BaseUser {
-  role: UserRole.ADMIN;
-}
-
-export type User = Applicant | Employee | Admin;

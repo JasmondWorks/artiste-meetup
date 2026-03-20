@@ -1,11 +1,17 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { UserRole } from "../user.entity";
+import { UserRole } from "./user.entity";
+
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
   role: UserRole;
+  isEmailVerified: boolean;
+  isFirstLogin: boolean;
+  // Excluded from query results by default (select: false)
+  emailVerificationOTP?: string;
+  emailVerificationOTPExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,8 +24,12 @@ const UserSchema = new Schema<IUser>(
     role: {
       type: String,
       enum: Object.values(UserRole),
-      default: UserRole.APPLICANT,
+      required: true,
     },
+    isEmailVerified: { type: Boolean, default: false },
+    isFirstLogin: { type: Boolean, default: true },
+    emailVerificationOTP: { type: String, select: false },
+    emailVerificationOTPExpires: { type: Date, select: false },
   },
   { timestamps: true },
 );

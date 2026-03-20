@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import appConfig from "@/config/app.config";
+import appConfig from "@/config/env.config";
 
 export const globalErrorHandler = (
   err: any,
@@ -11,11 +11,16 @@ export const globalErrorHandler = (
   err.status = err.status || "error";
 
   if (appConfig.env === "development") {
+    // Safely serialize the error — Mongoose/native errors can have circular
+    // references that silently crash res.json() and swallow the response entirely
     res.status(err.statusCode).json({
       status: err.status,
-      error: err,
       message: err.message,
       stack: err.stack,
+      error: {
+        name: err.name,
+        ...(err.errors && { errors: JSON.parse(JSON.stringify(err.errors, Object.getOwnPropertyNames(err.errors))) }),
+      },
     });
   } else {
     if (err.isOperational) {
