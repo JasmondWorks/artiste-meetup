@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import config from "@/config/env.config";
-import { AppError } from "@/utils/app-error.util";
-import { generateOTP, hashOTP } from "@/utils/otp.util";
-import { sendVerificationEmail } from "@/utils/email.util";
-import type { UserService } from "@/modules/user/user.service";
+import config from "../../config/env.config";
+import { AppError } from "../../utils/app-error.util";
+import { generateOTP, hashOTP } from "../../utils/otp.util";
+import { sendVerificationEmail } from "../../utils/email.util";
+import type { UserService } from "../user/user.service";
 import { LoginUserDto, RegisterUserDto, VerifyEmailDto } from "./auth.dto";
 
 export class AuthService {

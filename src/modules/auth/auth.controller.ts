@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthService } from "./auth.service";
-import { sendSuccess } from "@/utils/api-response.util";
-import { AppError } from "@/utils/app-error.util";
-import config from "@/config/env.config";
+import { sendSuccess } from "../../utils/api-response.util";
+import { AppError } from "../../utils/app-error.util";
+import config from "../../config/env.config";
 
 const REFRESH_TOKEN_COOKIE = "refreshToken";
 

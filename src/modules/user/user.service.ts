@@ -1,5 +1,5 @@
-import { MongooseRepository } from "@/utils/crud.util";
-import { AppError } from "@/utils/app-error.util";
+import { MongooseRepository } from "../../utils/crud.util";
+import { AppError } from "../../utils/app-error.util";
 import User, { IUser } from "./user.model";
 import { CreateUserDto, UpdateUserDto } from "./user.dto";
 

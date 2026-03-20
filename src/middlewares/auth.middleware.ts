@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import appConfig from "@/config/env.config";
-import { AppError } from "@/utils/app-error.util";
-import User, { IUser } from "@/modules/user/user.model";
-import { UserRole } from "@/modules/user/user.entity";
+import appConfig from "../config/env.config";
+import { AppError } from "../utils/app-error.util";
+import User, { IUser } from "../modules/user/user.model";
+import { UserRole } from "../modules/user/user.entity";
 
 export interface AuthenticatedRequest extends Request {
   user?: IUser;

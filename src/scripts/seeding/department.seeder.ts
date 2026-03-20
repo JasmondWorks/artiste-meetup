@@ -1,5 +1,5 @@
-import { MongooseRepository } from "@/utils/crud.util";
-import { IUser } from "@/modules/user/user.model";
+import { MongooseRepository } from "../../utils/crud.util";
+import { IUser } from "../../modules/user/user.model";
 
 interface DepartmentTemplate {
   name: string;

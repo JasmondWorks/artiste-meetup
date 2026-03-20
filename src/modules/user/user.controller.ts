@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { UserService } from "./user.service";
-import { sendSuccess } from "@/utils/api-response.util";
+import { sendSuccess } from "../../utils/api-response.util";
 
 export class UserController {
   private userService: UserService;

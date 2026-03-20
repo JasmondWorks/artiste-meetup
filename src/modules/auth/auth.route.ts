@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { UserService } from "@/modules/user/user.service";
+import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
-import { validateRequest } from "@/middlewares/validate-request.middleware";
+import { validateRequest } from "../../middlewares/validate-request.middleware";
 import {
   loginValidator,
   registerValidator,

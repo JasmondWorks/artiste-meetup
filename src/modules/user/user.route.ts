@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "./user.controller";
-import { protect, restrictTo } from "@/middlewares/auth.middleware";
-import { validateRequest } from "@/middlewares/validate-request.middleware";
+import { protect, restrictTo } from "../../middlewares/auth.middleware";
+import { validateRequest } from "../../middlewares/validate-request.middleware";
 import { updateUserValidator } from "./user.validator";
 import { UserRole } from "./user.entity";
 

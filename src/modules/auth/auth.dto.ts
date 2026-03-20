@@ -1,4 +1,4 @@
-import type { CreateUserDto as User } from "@/modules/user/user.dto";
+import type { CreateUserDto as User } from "../user/user.dto";
 
 export class LoginUserDto {
   email!: string;

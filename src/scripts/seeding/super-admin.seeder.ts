@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
-import appConfig from "@/config/env.config";
-import { MongooseRepository } from "@/utils/crud.util";
-import { UserRole } from "@/modules/user/user.entity";
-import User, { IUser } from "@/modules/user/user.model";
+import appConfig from "../../config/env.config";
+import { MongooseRepository } from "../../utils/crud.util";
+import { UserRole } from "../../modules/user/user.entity";
+import User, { IUser } from "../../modules/user/user.model";
 
 export const generateSuperAdmin = async (
   userRepository: MongooseRepository<IUser>,
@@ -28,7 +28,7 @@ export const generateSuperAdmin = async (
 // Run directly: npm run seedAdmin
 if (require.main === module) {
   (async () => {
-    const connectToDatabase = (await import("@/config/db.config")).default;
+    const connectToDatabase = (await import("../../config/db.config")).default;
     await connectToDatabase();
     const repo = new MongooseRepository<IUser>(User);
     await generateSuperAdmin(repo);

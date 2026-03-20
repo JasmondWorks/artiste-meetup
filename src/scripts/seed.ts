@@ -1,8 +1,8 @@
 import "dotenv/config";
 import bcrypt from "bcrypt";
-import connectToDatabase from "@/config/db.config";
-import { MongooseRepository } from "@/utils/crud.util";
-import User, { IUser } from "@/modules/user/user.model";
+import connectToDatabase from "../config/db.config";
+import { MongooseRepository } from "../utils/crud.util";
+import User, { IUser } from "../modules/user/user.model";
 import { generateSuperAdmin } from "./seeding/super-admin.seeder";
 import { generateEmployees } from "./seeding/employee.seeder";
 
