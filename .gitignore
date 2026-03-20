@@ -7,6 +7,8 @@ dist/
 # Docs
 docs/
 
+.claude/
+
 # Environment variables
 .env
 .env.local

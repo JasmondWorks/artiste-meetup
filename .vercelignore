@@ -1,9 +1,3 @@
-# Source files (Vercel bundles from api/index.ts — src/ is NOT deployed as-is)
-src/
-
-# Local scripts (seeding is not available in production)
-src/scripts/
-
 # Documentation
 docs/
 *.md
@@ -12,7 +6,7 @@ docs/
 .env
 .env.*
 
-# Build artifacts (Vercel performs its own bundle step)
+# Build artifacts (Vercel performs its own bundle step from src/)
 dist/
 
 # Dev tooling
