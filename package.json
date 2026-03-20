@@ -7,6 +7,7 @@
     "start": "node dist/server.js",
     "build": "tsc",
     "dev": "npx ts-node-dev -r dotenv/config --files src/server.ts",
+    "generate-swagger": "npx ts-node -r dotenv/config src/scripts/generate-swagger.ts",
     "seedData": "npx ts-node -r dotenv/config src/scripts/seed.ts",
     "seedAdmin": "npx ts-node -r dotenv/config src/scripts/seeding/super-admin.seeder.ts"
   },
