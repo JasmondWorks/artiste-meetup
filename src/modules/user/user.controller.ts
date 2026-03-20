@@ -11,8 +11,8 @@ export class UserController {
 
   public async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
-      const users = await this.userService.getAllUsers();
-      sendSuccess(res, users, "Users retrieved successfully");
+      const result = await this.userService.getAllUsers(req.query as Record<string, any>);
+      sendSuccess(res, result, "Users retrieved successfully");
     } catch (error) {
       next(error);
     }

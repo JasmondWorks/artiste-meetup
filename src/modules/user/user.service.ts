@@ -10,8 +10,10 @@ export class UserService {
     this.repo = new MongooseRepository(User);
   }
 
-  async getAllUsers() {
-    return this.repo.findAll();
+  async getAllUsers(queryParams: Record<string, any> = {}) {
+    // Pass req.query through to ApiFeatures for filtering, sorting, pagination, and search.
+    // Searchable fields: name and email.
+    return this.repo.findAll(queryParams, {}, ["name", "email"]);
   }
 
   async getUserById(id: string) {
