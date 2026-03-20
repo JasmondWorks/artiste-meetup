@@ -6,7 +6,6 @@ import connectToDatabase from "./config/db.config";
 import v1Routes from "./routes/v1.route";
 import { globalErrorHandler } from "./middlewares/error.middleware";
 import { AppError } from "./utils/app-error.util";
-import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.config";
 
 const app = express();
@@ -20,23 +19,39 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());                  // required for req.cookies (refresh token reads)
 
-// @vercel/node bundles with ncc so the local swagger-ui-dist static assets are
-// not resolvable at runtime. Serve ALL UI assets (JS, CSS) from a pinned CDN
-// version and skip swaggerUi.serve entirely to avoid the local-file 404s.
+// Custom Swagger UI handler — bypasses swagger-ui-express entirely.
+// @vercel/node (ncc) cannot serve the local swagger-ui-dist static files at
+// runtime, so we load all UI assets from a pinned CDN and embed the spec JSON
+// directly in the page. No filesystem access or extra network requests needed.
 const SWAGGER_CDN = "https://unpkg.com/swagger-ui-dist@5.32.1";
-app.use(
-  "/api-docs",
-  swaggerUi.setup(swaggerSpec, {
-    customCssUrl: `${SWAGGER_CDN}/swagger-ui.css`,
-    customJs: `${SWAGGER_CDN}/swagger-ui-bundle.js`,
-    swaggerOptions: {
-      persistAuthorization: true, // keeps Bearer token across page refreshes
-      withCredentials: true,      // sends httpOnly cookies (refresh token) from Swagger UI
-      presets: ["SwaggerUIBundle.presets.apis", "SwaggerUIBundle.SwaggerUIStandalonePreset"],
-      layout: "BaseLayout",
-    },
-  }),
-);
+app.get("/api-docs", (_, res) => {
+  res.setHeader("Content-Type", "text/html");
+  res.send(`<!DOCTYPE html>
+<html>
+  <head>
+    <title>Artiste Meetup API Docs</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="${SWAGGER_CDN}/swagger-ui.css" />
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="${SWAGGER_CDN}/swagger-ui-bundle.js"></script>
+    <script>
+      window.onload = () => {
+        SwaggerUIBundle({
+          spec: ${JSON.stringify(swaggerSpec)},
+          dom_id: "#swagger-ui",
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+          layout: "BaseLayout",
+          persistAuthorization: true,
+          withCredentials: true,
+        });
+      };
+    </script>
+  </body>
+</html>`);
+});
 
 app.use("/api/v1", v1Routes);
 
