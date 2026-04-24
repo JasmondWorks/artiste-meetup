@@ -19,6 +19,370 @@ export default {
         "scheme": "bearer",
         "bearerFormat": "JWT"
       }
+    },
+    "schemas": {
+      "CreateCelebrityDto": {
+        "type": "object",
+        "required": [
+          "name",
+          "profession",
+          "category",
+          "bookingPrice"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Burna Boy"
+          },
+          "profession": {
+            "type": "string",
+            "example": "Singer & Songwriter"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MUSIC_ARTISTE",
+              "FILM_ACTOR",
+              "PROFESSIONAL_ATHLETE",
+              "TECH_ENTREPRENEUR"
+            ],
+            "example": "MUSIC_ARTISTE"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true,
+            "description": "MongoDB ObjectId of the linked user account (optional)",
+            "example": "64a1f2b3c4d5e6f7a8b9c0d1"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "LIMITED",
+              "UNAVAILABLE"
+            ],
+            "default": "AVAILABLE"
+          },
+          "bio": {
+            "type": "string",
+            "example": "Grammy-winning Afrobeats artist from Nigeria."
+          },
+          "bookingPrice": {
+            "type": "number",
+            "minimum": 0,
+            "example": 5000
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Afrobeats",
+              "Reggae",
+              "Fashion"
+            ]
+          }
+        }
+      },
+      "UpdateCelebrityDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "profession": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MUSIC_ARTISTE",
+              "FILM_ACTOR",
+              "PROFESSIONAL_ATHLETE",
+              "TECH_ENTREPRENEUR"
+            ]
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "LIMITED",
+              "UNAVAILABLE"
+            ]
+          },
+          "bio": {
+            "type": "string"
+          },
+          "bookingPrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CelebrityResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Celebrity retrieved successfully"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "profession": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "MUSIC_ARTISTE",
+                  "FILM_ACTOR",
+                  "PROFESSIONAL_ATHLETE",
+                  "TECH_ENTREPRENEUR"
+                ]
+              },
+              "userId": {
+                "type": "object",
+                "nullable": true,
+                "description": "Populated user object if linked"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "AVAILABLE",
+                  "LIMITED",
+                  "UNAVAILABLE"
+                ]
+              },
+              "bio": {
+                "type": "string"
+              },
+              "bookingPrice": {
+                "type": "number"
+              },
+              "interests": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
+      "PaginatedCelebrityResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CelebrityResponse/properties/data"
+                }
+              },
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "example": 10
+              },
+              "total": {
+                "type": "integer",
+                "example": 42
+              },
+              "totalPages": {
+                "type": "integer",
+                "example": 5
+              }
+            }
+          }
+        }
+      },
+      "CreateFanDto": {
+        "type": "object",
+        "properties": {
+          "bio": {
+            "type": "string",
+            "example": "Huge fan of Afrobeats and basketball."
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Afrobeats",
+              "NBA",
+              "Tech"
+            ]
+          }
+        }
+      },
+      "UpdateFanDto": {
+        "type": "object",
+        "properties": {
+          "bio": {
+            "type": "string"
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "FanResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Fan profile retrieved successfully"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "userId": {
+                "type": "object",
+                "description": "Populated user object",
+                "properties": {
+                  "_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  }
+                }
+              },
+              "bio": {
+                "type": "string"
+              },
+              "interests": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      },
+      "PaginatedFanResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FanResponse/properties/data"
+                }
+              },
+              "page": {
+                "type": "integer",
+                "example": 1
+              },
+              "limit": {
+                "type": "integer",
+                "example": 10
+              },
+              "total": {
+                "type": "integer",
+                "example": 100
+              },
+              "totalPages": {
+                "type": "integer",
+                "example": 10
+              }
+            }
+          }
+        }
+      }
     }
   },
   "security": [
@@ -348,6 +712,514 @@ export default {
         }
       }
     },
+    "/celebrities": {
+      "get": {
+        "summary": "Get all celebrities",
+        "description": "Public endpoint. Returns a paginated list of celebrity profiles. Supports filtering by category and status (exact match), and partial text search on name and interests via dedicated query params.\n",
+        "tags": [
+          "Celebrities"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Partial case-insensitive name search"
+          },
+          {
+            "in": "query",
+            "name": "interest",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Partial case-insensitive keyword search against interests array"
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MUSIC_ARTISTE",
+                "FILM_ACTOR",
+                "PROFESSIONAL_ATHLETE",
+                "TECH_ENTREPRENEUR"
+              ]
+            },
+            "description": "Exact match filter by celebrity category"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AVAILABLE",
+                "LIMITED",
+                "UNAVAILABLE"
+              ]
+            },
+            "description": "Exact match filter by availability status"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Number of results per page"
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Sort fields (comma-separated). Prefix with - for descending. Default: -createdAt"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of celebrities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedCelebrityResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a celebrity profile",
+        "description": "**Private — Admin/Super Admin only.** Creates a new celebrity profile. The `userId` field is optional; supply it when the celebrity is also a registered user on the platform.\n",
+        "tags": [
+          "Celebrities"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCelebrityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Celebrity created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CelebrityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          }
+        }
+      }
+    },
+    "/celebrities/{id}": {
+      "get": {
+        "summary": "Get celebrity by ID",
+        "description": "Public endpoint. Returns a single celebrity profile with linked user populated.",
+        "tags": [
+          "Celebrities"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Celebrity MongoDB ObjectId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Celebrity found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CelebrityResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Celebrity not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a celebrity profile",
+        "description": "**Private — Admin/Super Admin only.** All fields are optional.",
+        "tags": [
+          "Celebrities"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCelebrityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Celebrity updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CelebrityResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Celebrity not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a celebrity profile",
+        "description": "**Private — Admin/Super Admin only.**",
+        "tags": [
+          "Celebrities"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Celebrity deleted"
+          },
+          "404": {
+            "description": "Celebrity not found"
+          }
+        }
+      }
+    },
+    "/fans/me": {
+      "get": {
+        "summary": "Get my fan profile",
+        "description": "**Private — Any authenticated user.** Returns the fan profile linked to the current user.",
+        "tags": [
+          "Fans"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fan profile found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FanResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fan profile not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update my fan profile",
+        "description": "**Private — Any authenticated user.** Updates the fan profile of the current user.",
+        "tags": [
+          "Fans"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Fan profile updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FanResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fan profile not found"
+          }
+        }
+      }
+    },
+    "/fans": {
+      "post": {
+        "summary": "Create fan profile",
+        "description": "**Private — Any authenticated user.** Creates a fan profile linked to the current user. Each user can only have one fan profile.\n",
+        "tags": [
+          "Fans"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Fan profile created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Fan profile already exists for this user"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all fan profiles",
+        "description": "**Private — Admin/Super Admin only.** Returns a paginated list of all fan profiles with linked user data populated.\n",
+        "tags": [
+          "Fans"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Sort fields (comma-separated). Prefix with - for descending. Default: -createdAt"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of fans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedFanResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fans/{id}": {
+      "get": {
+        "summary": "Get fan by ID",
+        "description": "**Private — Admin/Super Admin only.**",
+        "tags": [
+          "Fans"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fan found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FanResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fan not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update fan by ID",
+        "description": "**Private — Admin/Super Admin only.**",
+        "tags": [
+          "Fans"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Fan updated"
+          },
+          "404": {
+            "description": "Fan not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete fan by ID",
+        "description": "**Private — Admin/Super Admin only.**",
+        "tags": [
+          "Fans"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fan deleted"
+          },
+          "404": {
+            "description": "Fan not found"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "summary": "Get all users",
@@ -528,5 +1400,14 @@ export default {
       }
     }
   },
-  "tags": []
+  "tags": [
+    {
+      "name": "Celebrities",
+      "description": "Celebrity profiles — public browsing, admin management"
+    },
+    {
+      "name": "Fans",
+      "description": "Fan profile management"
+    }
+  ]
 } as object;
