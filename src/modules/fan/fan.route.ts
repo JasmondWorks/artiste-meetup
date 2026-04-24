@@ -2,6 +2,7 @@ import { Router } from "express";
 import { FanController } from "./fan.controller";
 import { protect, restrictTo } from "../../middlewares/auth.middleware";
 import { validateRequest } from "../../middlewares/validate-request.middleware";
+import { catchAsync } from "../../utils/catch-async.util";
 import { createFanValidator, updateFanValidator } from "./fan.validator";
 import { UserRole } from "../user/user.entity";
 
@@ -36,7 +37,7 @@ router.use(protect);
  *       404:
  *         description: Fan profile not found
  */
-router.get("/me", controller.getMyProfile.bind(controller));
+router.get("/me", catchAsync(controller.getMyProfile.bind(controller)));
 
 /**
  * @openapi
@@ -64,14 +65,19 @@ router.get("/me", controller.getMyProfile.bind(controller));
  *       400:
  *         description: Fan profile already exists for this user
  */
-router.post("/", createFanValidator, validateRequest, controller.create.bind(controller));
+router.post(
+  "/",
+  createFanValidator,
+  validateRequest,
+  catchAsync(controller.create.bind(controller)),
+);
 
 /**
  * @openapi
  * /fans/me:
  *   patch:
  *     summary: Update my fan profile
- *     description: "**Private — Any authenticated user.** Updates the fan profile of the current user."
+ *     description: "**Private — Any authenticated user.**"
  *     tags: [Fans]
  *     security:
  *       - bearerAuth: []
@@ -90,16 +96,19 @@ router.post("/", createFanValidator, validateRequest, controller.create.bind(con
  *       404:
  *         description: Fan profile not found
  */
-router.patch("/me", updateFanValidator, validateRequest, controller.updateMyProfile.bind(controller));
+router.patch(
+  "/me",
+  updateFanValidator,
+  validateRequest,
+  catchAsync(controller.updateMyProfile.bind(controller)),
+);
 
 /**
  * @openapi
  * /fans:
  *   get:
  *     summary: Get all fan profiles
- *     description: >
- *       **Private — Admin/Super Admin only.**
- *       Returns a paginated list of all fan profiles with linked user data populated.
+ *     description: "**Private — Admin only.** Returns a paginated list of all fan profiles with user data populated."
  *     tags: [Fans]
  *     security:
  *       - bearerAuth: []
@@ -118,7 +127,7 @@ router.patch("/me", updateFanValidator, validateRequest, controller.updateMyProf
  *         name: sort
  *         schema:
  *           type: string
- *         description: "Sort fields (comma-separated). Prefix with - for descending. Default: -createdAt"
+ *         description: "Comma-separated sort fields. Prefix with - for descending. Default: -createdAt"
  *     responses:
  *       200:
  *         description: Paginated list of fans
@@ -129,8 +138,8 @@ router.patch("/me", updateFanValidator, validateRequest, controller.updateMyProf
  */
 router.get(
   "/",
-  restrictTo(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  controller.getAll.bind(controller),
+  restrictTo(UserRole.ADMIN),
+  catchAsync(controller.getAll.bind(controller)),
 );
 
 /**
@@ -138,7 +147,7 @@ router.get(
  * /fans/{id}:
  *   get:
  *     summary: Get fan by ID
- *     description: "**Private — Admin/Super Admin only.**"
+ *     description: "**Private — Admin only.**"
  *     tags: [Fans]
  *     security:
  *       - bearerAuth: []
@@ -160,8 +169,8 @@ router.get(
  */
 router.get(
   "/:id",
-  restrictTo(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  controller.getById.bind(controller),
+  restrictTo(UserRole.ADMIN),
+  catchAsync(controller.getById.bind(controller)),
 );
 
 /**
@@ -169,7 +178,7 @@ router.get(
  * /fans/{id}:
  *   patch:
  *     summary: Update fan by ID
- *     description: "**Private — Admin/Super Admin only.**"
+ *     description: "**Private — Admin only.**"
  *     tags: [Fans]
  *     security:
  *       - bearerAuth: []
@@ -192,10 +201,10 @@ router.get(
  */
 router.patch(
   "/:id",
-  restrictTo(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  restrictTo(UserRole.ADMIN),
   updateFanValidator,
   validateRequest,
-  controller.update.bind(controller),
+  catchAsync(controller.update.bind(controller)),
 );
 
 /**
@@ -203,7 +212,7 @@ router.patch(
  * /fans/{id}:
  *   delete:
  *     summary: Delete fan by ID
- *     description: "**Private — Admin/Super Admin only.**"
+ *     description: "**Private — Admin only.**"
  *     tags: [Fans]
  *     security:
  *       - bearerAuth: []
@@ -221,8 +230,8 @@ router.patch(
  */
 router.delete(
   "/:id",
-  restrictTo(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  controller.delete.bind(controller),
+  restrictTo(UserRole.ADMIN),
+  catchAsync(controller.delete.bind(controller)),
 );
 
 export default router;

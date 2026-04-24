@@ -18,7 +18,7 @@ export const generateEmployees = async (
       name: `${firstName} ${lastName}`,
       email: faker.internet.email({ firstName, lastName }).toLowerCase(),
       password: hashedPassword,
-      role: UserRole.CUSTOMER,
+      roles: [UserRole.FAN],
     });
 
     users.push(user);

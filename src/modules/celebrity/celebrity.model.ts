@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { CelebrityCategory, CelebrityStatus } from "./celebrity.entity";
+import { CelebrityApprovalStatus, CelebrityCategory, CelebrityStatus } from "./celebrity.entity";
 
 export interface ICelebrity extends Document {
   name: string;
@@ -7,6 +7,8 @@ export interface ICelebrity extends Document {
   category: CelebrityCategory;
   userId: mongoose.Types.ObjectId | null;
   status: CelebrityStatus;
+  approvalStatus: CelebrityApprovalStatus;
+  rejectionReason: string | null;
   bio: string;
   bookingPrice: number;
   interests: string[];
@@ -33,6 +35,12 @@ const CelebritySchema = new Schema<ICelebrity>(
       enum: Object.values(CelebrityStatus),
       default: CelebrityStatus.AVAILABLE,
     },
+    approvalStatus: {
+      type: String,
+      enum: Object.values(CelebrityApprovalStatus),
+      default: CelebrityApprovalStatus.APPROVED,
+    },
+    rejectionReason: { type: String, default: null },
     bio: { type: String, default: "" },
     bookingPrice: { type: Number, required: true, min: 0 },
     interests: [{ type: String, trim: true }],

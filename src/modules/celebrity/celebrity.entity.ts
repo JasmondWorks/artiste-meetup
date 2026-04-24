@@ -11,6 +11,12 @@ export enum CelebrityStatus {
   UNAVAILABLE = "UNAVAILABLE",
 }
 
+export enum CelebrityApprovalStatus {
+  APPROVED = "APPROVED",
+  PENDING = "PENDING",
+  REJECTED = "REJECTED",
+}
+
 export interface Celebrity {
   id: string;
   name: string;
@@ -18,6 +24,8 @@ export interface Celebrity {
   category: CelebrityCategory;
   userId: string | null;
   status: CelebrityStatus;
+  approvalStatus: CelebrityApprovalStatus;
+  rejectionReason: string | null;
   bio: string;
   bookingPrice: number;
   interests: string[];

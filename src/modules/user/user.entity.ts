@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  roles: UserRole[];
   isEmailVerified: boolean;
   isFirstLogin: boolean;
   createdAt: Date;
@@ -10,15 +10,9 @@ export interface User {
 }
 
 export enum UserRole {
-  CUSTOMER = "CUSTOMER",
-  ARTISTE = "ARTISTE",
+  FAN = "FAN",
+  CELEBRITY = "CELEBRITY",
   ADMIN = "ADMIN",
-  SUPER_ADMIN = "SUPER_ADMIN",
 }
 
-export const userRoles = [
-  UserRole.SUPER_ADMIN,
-  UserRole.ADMIN,
-  UserRole.ARTISTE,
-  UserRole.CUSTOMER,
-];
+export const userRoles = [UserRole.ADMIN, UserRole.CELEBRITY, UserRole.FAN];

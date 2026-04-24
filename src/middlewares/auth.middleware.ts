@@ -9,7 +9,6 @@ export interface AuthenticatedRequest extends Request {
   user?: IUser;
 }
 
-// Verify Bearer token, load user from DB, attach to req.user
 export const protect = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -36,13 +35,31 @@ export const protect = async (
   }
 };
 
-// Only allow specified roles
+// Silently attaches req.user if a valid Bearer token is present; never blocks the request.
+export const optionalProtect = async (
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction,
+) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer")) return next();
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, appConfig.jwt.accessSecret) as { id: string };
+    const user = await User.findById(decoded.id);
+    if (user) req.user = user;
+  } catch {
+    // Invalid or expired token — proceed as unauthenticated
+  }
+  next();
+};
+
 export const restrictTo = (...roles: UserRole[]) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!req.user || !roles.some((r) => req.user!.roles.includes(r))) {
       return next(new AppError("Permission denied", 403));
     }
-
     next();
   };
 };

@@ -25,6 +25,23 @@ export const createCelebrityValidator = [
   body("interests.*").optional().isString().withMessage("Each interest must be a string"),
 ];
 
+// Self-application: userId injected from token, approvalStatus set server-side
+export const applyCelebrityValidator = [
+  body("name").notEmpty().withMessage("Name is required"),
+  body("profession").notEmpty().withMessage("Profession is required"),
+  body("category")
+    .notEmpty()
+    .isIn(Object.values(CelebrityCategory))
+    .withMessage(`Category must be one of: ${Object.values(CelebrityCategory).join(", ")}`),
+  body("bookingPrice")
+    .notEmpty()
+    .isFloat({ min: 0 })
+    .withMessage("Booking price must be a non-negative number"),
+  body("bio").optional().isString().withMessage("Bio must be a string"),
+  body("interests").optional().isArray().withMessage("Interests must be an array"),
+  body("interests.*").optional().isString().withMessage("Each interest must be a string"),
+];
+
 export const updateCelebrityValidator = [
   body("name").optional().notEmpty().withMessage("Name cannot be empty"),
   body("profession").optional().notEmpty().withMessage("Profession cannot be empty"),
@@ -47,4 +64,8 @@ export const updateCelebrityValidator = [
   body("bio").optional().isString().withMessage("Bio must be a string"),
   body("interests").optional().isArray().withMessage("Interests must be an array"),
   body("interests.*").optional().isString().withMessage("Each interest must be a string"),
+];
+
+export const rejectCelebrityValidator = [
+  body("reason").optional().isString().withMessage("Rejection reason must be a string"),
 ];

@@ -6,18 +6,20 @@ export const loginValidator = [
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
-export const registerValidator = [
+// Shared base rules for all self-registration endpoints
+export const baseRegisterValidator = [
   body("name").notEmpty().withMessage("Name is required"),
   body("email").isEmail().withMessage("A valid email is required"),
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
-  body("role")
-    .isIn(Object.values(UserRole))
-    .withMessage(
-      `Invalid role. Must be one of: ${Object.values(UserRole).join(", ")}`,
-    ),
 ];
+
+// POST /auth/register/fan — roles injected server-side, no roles field in body
+export const registerFanValidator = [...baseRegisterValidator];
+
+// POST /auth/register/celebrity — roles injected server-side, no roles field in body
+export const registerCelebrityValidator = [...baseRegisterValidator];
 
 export const verifyEmailValidator = [
   body("email").isEmail().withMessage("A valid email is required"),

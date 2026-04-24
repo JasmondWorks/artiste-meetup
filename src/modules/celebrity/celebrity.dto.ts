@@ -4,6 +4,37 @@ import { CelebrityCategory, CelebrityStatus } from "./celebrity.entity";
  * @openapi
  * components:
  *   schemas:
+ *     ApplyCelebrityDto:
+ *       type: object
+ *       required:
+ *         - name
+ *         - profession
+ *         - category
+ *         - bookingPrice
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: "Burna Boy"
+ *         profession:
+ *           type: string
+ *           example: "Singer & Songwriter"
+ *         category:
+ *           type: string
+ *           enum: [MUSIC_ARTISTE, FILM_ACTOR, PROFESSIONAL_ATHLETE, TECH_ENTREPRENEUR]
+ *           example: MUSIC_ARTISTE
+ *         bio:
+ *           type: string
+ *           example: "Grammy-winning Afrobeats artist from Nigeria."
+ *         bookingPrice:
+ *           type: number
+ *           minimum: 0
+ *           example: 5000
+ *         interests:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["Afrobeats", "Reggae", "Fashion"]
+ *
  *     CreateCelebrityDto:
  *       type: object
  *       required:
@@ -70,6 +101,53 @@ import { CelebrityCategory, CelebrityStatus } from "./celebrity.entity";
  *           items:
  *             type: string
  *
+ *     RejectCelebrityDto:
+ *       type: object
+ *       properties:
+ *         reason:
+ *           type: string
+ *           example: "Insufficient profile information provided."
+ *
+ *     CelebrityObject:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         profession:
+ *           type: string
+ *         category:
+ *           type: string
+ *           enum: [MUSIC_ARTISTE, FILM_ACTOR, PROFESSIONAL_ATHLETE, TECH_ENTREPRENEUR]
+ *         userId:
+ *           type: object
+ *           nullable: true
+ *           description: Populated User object if linked; null otherwise
+ *         status:
+ *           type: string
+ *           enum: [AVAILABLE, LIMITED, UNAVAILABLE]
+ *         approvalStatus:
+ *           type: string
+ *           enum: [APPROVED, PENDING, REJECTED]
+ *         rejectionReason:
+ *           type: string
+ *           nullable: true
+ *         bio:
+ *           type: string
+ *         bookingPrice:
+ *           type: number
+ *         interests:
+ *           type: array
+ *           items:
+ *             type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *
  *     CelebrityResponse:
  *       type: object
  *       properties:
@@ -81,40 +159,8 @@ import { CelebrityCategory, CelebrityStatus } from "./celebrity.entity";
  *           example: 200
  *         message:
  *           type: string
- *           example: "Celebrity retrieved successfully"
  *         data:
- *           type: object
- *           properties:
- *             _id:
- *               type: string
- *             name:
- *               type: string
- *             profession:
- *               type: string
- *             category:
- *               type: string
- *               enum: [MUSIC_ARTISTE, FILM_ACTOR, PROFESSIONAL_ATHLETE, TECH_ENTREPRENEUR]
- *             userId:
- *               type: object
- *               nullable: true
- *               description: Populated user object if linked
- *             status:
- *               type: string
- *               enum: [AVAILABLE, LIMITED, UNAVAILABLE]
- *             bio:
- *               type: string
- *             bookingPrice:
- *               type: number
- *             interests:
- *               type: array
- *               items:
- *                 type: string
- *             createdAt:
- *               type: string
- *               format: date-time
- *             updatedAt:
- *               type: string
- *               format: date-time
+ *           $ref: '#/components/schemas/CelebrityObject'
  *
  *     PaginatedCelebrityResponse:
  *       type: object
@@ -133,7 +179,7 @@ import { CelebrityCategory, CelebrityStatus } from "./celebrity.entity";
  *             data:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/CelebrityResponse/properties/data'
+ *                 $ref: '#/components/schemas/CelebrityObject'
  *             page:
  *               type: integer
  *               example: 1
@@ -147,6 +193,15 @@ import { CelebrityCategory, CelebrityStatus } from "./celebrity.entity";
  *               type: integer
  *               example: 5
  */
+
+export class ApplyCelebrityDto {
+  name!: string;
+  profession!: string;
+  category!: CelebrityCategory;
+  bio?: string;
+  bookingPrice!: number;
+  interests?: string[];
+}
 
 export class CreateCelebrityDto {
   name!: string;

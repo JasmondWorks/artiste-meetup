@@ -28,10 +28,11 @@ const options: swaggerJSDoc.Options = {
     },
     security: [{ bearerAuth: [] }],
   },
+  // Relative to cwd (project root) so glob expands correctly on all platforms
   apis: [
-    path.join(__dirname, "../routes/*.ts"),
-    path.join(__dirname, "../modules/**/*.route.ts"),
-    path.join(__dirname, "../modules/**/*.dto.ts"),
+    "src/routes/*.ts",
+    "src/modules/**/*.route.ts",
+    "src/modules/**/*.dto.ts",
   ],
 };
 

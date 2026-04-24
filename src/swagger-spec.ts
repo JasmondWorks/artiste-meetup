@@ -21,6 +21,224 @@ export default {
       }
     },
     "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Ada Okafor"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "ada@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "mypassword123"
+          }
+        }
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 201
+          },
+          "message": {
+            "type": "string",
+            "example": "Registration successful. Check your email for a 6-digit OTP."
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "$ref": "#/components/schemas/UserObject"
+              }
+            }
+          }
+        }
+      },
+      "LoginDto": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "ada@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "mypassword123"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "example": "Login successful"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "accessToken": {
+                "type": "string",
+                "description": "JWT bearer token — include as Authorization header"
+              },
+              "isFirstLogin": {
+                "type": "boolean"
+              },
+              "user": {
+                "$ref": "#/components/schemas/UserObject"
+              }
+            }
+          }
+        }
+      },
+      "VerifyEmailDto": {
+        "type": "object",
+        "required": [
+          "email",
+          "otp"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "otp": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 6,
+            "example": "482916"
+          }
+        }
+      },
+      "ResendOTPDto": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "UserObject": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FAN",
+                "CELEBRITY",
+                "ADMIN"
+              ]
+            }
+          },
+          "isEmailVerified": {
+            "type": "boolean"
+          },
+          "isFirstLogin": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ApplyCelebrityDto": {
+        "type": "object",
+        "required": [
+          "name",
+          "profession",
+          "category",
+          "bookingPrice"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Burna Boy"
+          },
+          "profession": {
+            "type": "string",
+            "example": "Singer & Songwriter"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MUSIC_ARTISTE",
+              "FILM_ACTOR",
+              "PROFESSIONAL_ATHLETE",
+              "TECH_ENTREPRENEUR"
+            ],
+            "example": "MUSIC_ARTISTE"
+          },
+          "bio": {
+            "type": "string",
+            "example": "Grammy-winning Afrobeats artist from Nigeria."
+          },
+          "bookingPrice": {
+            "type": "number",
+            "minimum": 0,
+            "example": 5000
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Afrobeats",
+              "Reggae",
+              "Fashion"
+            ]
+          }
+        }
+      },
       "CreateCelebrityDto": {
         "type": "object",
         "required": [
@@ -130,6 +348,83 @@ export default {
           }
         }
       },
+      "RejectCelebrityDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Insufficient profile information provided."
+          }
+        }
+      },
+      "CelebrityObject": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "profession": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MUSIC_ARTISTE",
+              "FILM_ACTOR",
+              "PROFESSIONAL_ATHLETE",
+              "TECH_ENTREPRENEUR"
+            ]
+          },
+          "userId": {
+            "type": "object",
+            "nullable": true,
+            "description": "Populated User object if linked; null otherwise"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "LIMITED",
+              "UNAVAILABLE"
+            ]
+          },
+          "approvalStatus": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "PENDING",
+              "REJECTED"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "bio": {
+            "type": "string"
+          },
+          "bookingPrice": {
+            "type": "number"
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "CelebrityResponse": {
         "type": "object",
         "properties": {
@@ -142,64 +437,10 @@ export default {
             "example": 200
           },
           "message": {
-            "type": "string",
-            "example": "Celebrity retrieved successfully"
+            "type": "string"
           },
           "data": {
-            "type": "object",
-            "properties": {
-              "_id": {
-                "type": "string"
-              },
-              "name": {
-                "type": "string"
-              },
-              "profession": {
-                "type": "string"
-              },
-              "category": {
-                "type": "string",
-                "enum": [
-                  "MUSIC_ARTISTE",
-                  "FILM_ACTOR",
-                  "PROFESSIONAL_ATHLETE",
-                  "TECH_ENTREPRENEUR"
-                ]
-              },
-              "userId": {
-                "type": "object",
-                "nullable": true,
-                "description": "Populated user object if linked"
-              },
-              "status": {
-                "type": "string",
-                "enum": [
-                  "AVAILABLE",
-                  "LIMITED",
-                  "UNAVAILABLE"
-                ]
-              },
-              "bio": {
-                "type": "string"
-              },
-              "bookingPrice": {
-                "type": "number"
-              },
-              "interests": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "createdAt": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "updatedAt": {
-                "type": "string",
-                "format": "date-time"
-              }
-            }
+            "$ref": "#/components/schemas/CelebrityObject"
           }
         }
       },
@@ -223,7 +464,7 @@ export default {
               "data": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/CelebrityResponse/properties/data"
+                  "$ref": "#/components/schemas/CelebrityObject"
                 }
               },
               "page": {
@@ -391,9 +632,10 @@ export default {
     }
   ],
   "paths": {
-    "/auth/register": {
+    "/auth/register/fan": {
       "post": {
-        "summary": "Register a new user",
+        "summary": "Register as a Fan",
+        "description": "**Public.** Creates a new user account with the `FAN` role. A 6-digit OTP is emailed for verification. No tokens are returned until the email is verified via `POST /auth/verify-email`.\n",
         "tags": [
           "Auth"
         ],
@@ -403,61 +645,53 @@ export default {
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "name",
-                  "email",
-                  "password",
-                  "role"
-                ],
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  },
-                  "role": {
-                    "type": "string",
-                    "enum": [
-                      "CUSTOMER",
-                      "ARTISTE",
-                      "ADMIN"
-                    ]
-                  }
-                }
+                "$ref": "#/components/schemas/RegisterDto"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "User registered successfully. A 6-digit OTP has been sent to the provided email address. No tokens are returned until the email is verified via POST /auth/verify-email.\n",
+            "description": "Registration successful — OTP sent to email",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Registration successful. Please verify your email."
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "user": {
-                          "type": "object"
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or email already in use"
+          }
+        }
+      }
+    },
+    "/auth/register/celebrity": {
+      "post": {
+        "summary": "Register as a Celebrity",
+        "description": "**Public.** Creates a new user account with the `CELEBRITY` role. A 6-digit OTP is emailed for verification. After verifying your email, submit your celebrity profile via `POST /celebrities/apply` to go through admin approval before your profile is publicly visible.\n",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration successful — OTP sent to email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
                 }
               }
             }
@@ -471,6 +705,7 @@ export default {
     "/auth/login": {
       "post": {
         "summary": "Login",
+        "description": "**Public.** Authenticates the user and returns an access token in the response body plus a `refreshToken` httpOnly cookie. Works for all roles.\n",
         "tags": [
           "Auth"
         ],
@@ -480,19 +715,7 @@ export default {
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "email",
-                  "password"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/components/schemas/LoginDto"
               }
             }
           }
@@ -503,77 +726,16 @@ export default {
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "accessToken": {
-                      "type": "string"
-                    },
-                    "user": {
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/refresh": {
-      "post": {
-        "summary": "Refresh access token",
-        "description": "Reads the `refreshToken` from the **httpOnly cookie** set at login. No request body is required — the browser sends the cookie automatically. Returns a new access token and rotates the refresh token cookie.\n",
-        "tags": [
-          "Auth"
-        ],
-        "security": [],
-        "responses": {
-          "200": {
-            "description": "Token refreshed successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "accessToken": {
-                      "type": "string"
-                    },
-                    "user": {
-                      "type": "object"
-                    }
-                  }
+                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             }
           },
           "401": {
-            "description": "Missing or invalid refresh token cookie"
-          }
-        }
-      }
-    },
-    "/auth/logout": {
-      "post": {
-        "summary": "Logout",
-        "tags": [
-          "Auth"
-        ],
-        "security": [],
-        "responses": {
-          "200": {
-            "description": "Logout successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Invalid credentials"
+          },
+          "403": {
+            "description": "Email not verified (fresh OTP auto-sent)"
           }
         }
       }
@@ -581,7 +743,7 @@ export default {
     "/auth/verify-email": {
       "post": {
         "summary": "Verify email with OTP",
-        "description": "Submits the 6-digit OTP sent to the user's email during registration (or after a resend request). On success, marks the email as verified, issues an access token in the response body, and sets the refresh token as an httpOnly cookie. This is the only way to receive auth tokens after registration.\n",
+        "description": "**Public.** Submits the 6-digit OTP sent to the user's email. On success, issues an access token in the body and sets the refresh token as an httpOnly cookie. This is the only path to receive auth tokens after registration.\n",
         "tags": [
           "Auth"
         ],
@@ -591,56 +753,18 @@ export default {
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "email",
-                  "otp"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "user@example.com"
-                  },
-                  "otp": {
-                    "type": "string",
-                    "minLength": 6,
-                    "maxLength": 6,
-                    "example": "482916"
-                  }
-                }
+                "$ref": "#/components/schemas/VerifyEmailDto"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Email verified. Returns access token in body; refresh token is set as an httpOnly cookie.\n",
+            "description": "Email verified — access token returned, refresh cookie set",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Email verified successfully."
-                    },
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "accessToken": {
-                          "type": "string"
-                        },
-                        "user": {
-                          "type": "object"
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             }
@@ -657,7 +781,7 @@ export default {
     "/auth/resend-verification": {
       "post": {
         "summary": "Resend email verification OTP",
-        "description": "Generates a fresh 6-digit OTP and sends it to the provided email address. Any previously issued OTP is invalidated. Only works for accounts whose email has not yet been verified. Attempting to resend for an already-verified account returns a 400 error.\n",
+        "description": "**Public.** Generates a fresh OTP and emails it. Any prior OTP is invalidated. Only works for unverified accounts.\n",
         "tags": [
           "Auth"
         ],
@@ -667,41 +791,14 @@ export default {
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "required": [
-                  "email"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "user@example.com"
-                  }
-                }
+                "$ref": "#/components/schemas/ResendOTPDto"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "OTP resent successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "A new verification OTP has been sent to your email."
-                    }
-                  }
-                }
-              }
-            }
+            "description": "New OTP sent"
           },
           "400": {
             "description": "Email already verified"
@@ -712,10 +809,50 @@ export default {
         }
       }
     },
+    "/auth/refresh": {
+      "post": {
+        "summary": "Refresh access token",
+        "description": "**Public.** Reads the `refreshToken` httpOnly cookie set at login. No request body required — the browser sends the cookie automatically. Returns a new access token and rotates the refresh token cookie.\n",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Token refreshed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid refresh token"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout",
+        "description": "**Public.** Clears the refresh token cookie.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Logged out successfully"
+          }
+        }
+      }
+    },
     "/celebrities": {
       "get": {
         "summary": "Get all celebrities",
-        "description": "Public endpoint. Returns a paginated list of celebrity profiles. Supports filtering by category and status (exact match), and partial text search on name and interests via dedicated query params.\n",
+        "description": "**Public** (admins see all approval statuses; public sees only APPROVED profiles). Supports filtering by `category`, `status` (exact match) and partial text search on `name` and `interests`.\n",
         "tags": [
           "Celebrities"
         ],
@@ -747,8 +884,7 @@ export default {
                 "PROFESSIONAL_ATHLETE",
                 "TECH_ENTREPRENEUR"
               ]
-            },
-            "description": "Exact match filter by celebrity category"
+            }
           },
           {
             "in": "query",
@@ -760,8 +896,20 @@ export default {
                 "LIMITED",
                 "UNAVAILABLE"
               ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "approvalStatus",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "APPROVED",
+                "PENDING",
+                "REJECTED"
+              ]
             },
-            "description": "Exact match filter by availability status"
+            "description": "Admin only — filter by approval status"
           },
           {
             "in": "query",
@@ -769,8 +917,7 @@ export default {
             "schema": {
               "type": "integer",
               "default": 1
-            },
-            "description": "Page number for pagination"
+            }
           },
           {
             "in": "query",
@@ -778,8 +925,7 @@ export default {
             "schema": {
               "type": "integer",
               "default": 10
-            },
-            "description": "Number of results per page"
+            }
           },
           {
             "in": "query",
@@ -787,7 +933,7 @@ export default {
             "schema": {
               "type": "string"
             },
-            "description": "Sort fields (comma-separated). Prefix with - for descending. Default: -createdAt"
+            "description": "Comma-separated sort fields. Prefix with - for descending. Default: -createdAt"
           }
         ],
         "responses": {
@@ -804,8 +950,8 @@ export default {
         }
       },
       "post": {
-        "summary": "Create a celebrity profile",
-        "description": "**Private — Admin/Super Admin only.** Creates a new celebrity profile. The `userId` field is optional; supply it when the celebrity is also a registered user on the platform.\n",
+        "summary": "Create a celebrity profile (Admin)",
+        "description": "**Private — Admin only.** Creates an admin-verified celebrity profile directly. Profile is `APPROVED` by default. Supply `userId` to link a registered user account.\n",
         "tags": [
           "Celebrities"
         ],
@@ -835,12 +981,6 @@ export default {
               }
             }
           },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Not authenticated"
-          },
           "403": {
             "description": "Insufficient permissions"
           }
@@ -850,7 +990,7 @@ export default {
     "/celebrities/{id}": {
       "get": {
         "summary": "Get celebrity by ID",
-        "description": "Public endpoint. Returns a single celebrity profile with linked user populated.",
+        "description": "**Public.** Returns a single celebrity profile with the linked user populated. Non-approved profiles are hidden from public — only the owner or an admin can view them.\n",
         "tags": [
           "Celebrities"
         ],
@@ -861,8 +1001,7 @@ export default {
             "required": true,
             "schema": {
               "type": "string"
-            },
-            "description": "Celebrity MongoDB ObjectId"
+            }
           }
         ],
         "responses": {
@@ -882,8 +1021,8 @@ export default {
         }
       },
       "patch": {
-        "summary": "Update a celebrity profile",
-        "description": "**Private — Admin/Super Admin only.** All fields are optional.",
+        "summary": "Update a celebrity profile (Admin)",
+        "description": "**Private — Admin only.** All fields are optional.",
         "tags": [
           "Celebrities"
         ],
@@ -929,8 +1068,8 @@ export default {
         }
       },
       "delete": {
-        "summary": "Delete a celebrity profile",
-        "description": "**Private — Admin/Super Admin only.**",
+        "summary": "Delete a celebrity profile (Admin)",
+        "description": "**Private — Admin only.**",
         "tags": [
           "Celebrities"
         ],
@@ -952,6 +1091,141 @@ export default {
         "responses": {
           "200": {
             "description": "Celebrity deleted"
+          },
+          "404": {
+            "description": "Celebrity not found"
+          }
+        }
+      }
+    },
+    "/celebrities/apply": {
+      "post": {
+        "summary": "Apply as a celebrity",
+        "description": "**Private — Any authenticated user.** Submits a celebrity profile application. The profile is created with `approvalStatus: PENDING` and is not publicly visible until an admin approves it via `PATCH /celebrities/{id}/approve`. Each user can only have one celebrity profile.\n",
+        "tags": [
+          "Celebrities"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyCelebrityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Application submitted — pending admin approval",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CelebrityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "You already have a celebrity profile"
+          },
+          "401": {
+            "description": "Not authenticated"
+          }
+        }
+      }
+    },
+    "/celebrities/{id}/approve": {
+      "patch": {
+        "summary": "Approve a celebrity application",
+        "description": "**Private — Admin only.** Moves the profile from PENDING to APPROVED, making it publicly visible.",
+        "tags": [
+          "Celebrities"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CelebrityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Profile is already approved"
+          },
+          "404": {
+            "description": "Celebrity not found"
+          }
+        }
+      }
+    },
+    "/celebrities/{id}/reject": {
+      "patch": {
+        "summary": "Reject a celebrity application",
+        "description": "**Private — Admin only.** Rejects a PENDING profile with an optional reason.",
+        "tags": [
+          "Celebrities"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectCelebrityDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CelebrityResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Only pending profiles can be rejected"
           },
           "404": {
             "description": "Celebrity not found"
@@ -989,7 +1263,7 @@ export default {
       },
       "patch": {
         "summary": "Update my fan profile",
-        "description": "**Private — Any authenticated user.** Updates the fan profile of the current user.",
+        "description": "**Private — Any authenticated user.**",
         "tags": [
           "Fans"
         ],
@@ -1063,7 +1337,7 @@ export default {
       },
       "get": {
         "summary": "Get all fan profiles",
-        "description": "**Private — Admin/Super Admin only.** Returns a paginated list of all fan profiles with linked user data populated.\n",
+        "description": "**Private — Admin only.** Returns a paginated list of all fan profiles with user data populated.",
         "tags": [
           "Fans"
         ],
@@ -1095,7 +1369,7 @@ export default {
             "schema": {
               "type": "string"
             },
-            "description": "Sort fields (comma-separated). Prefix with - for descending. Default: -createdAt"
+            "description": "Comma-separated sort fields. Prefix with - for descending. Default: -createdAt"
           }
         ],
         "responses": {
@@ -1115,7 +1389,7 @@ export default {
     "/fans/{id}": {
       "get": {
         "summary": "Get fan by ID",
-        "description": "**Private — Admin/Super Admin only.**",
+        "description": "**Private — Admin only.**",
         "tags": [
           "Fans"
         ],
@@ -1152,7 +1426,7 @@ export default {
       },
       "patch": {
         "summary": "Update fan by ID",
-        "description": "**Private — Admin/Super Admin only.**",
+        "description": "**Private — Admin only.**",
         "tags": [
           "Fans"
         ],
@@ -1191,7 +1465,7 @@ export default {
       },
       "delete": {
         "summary": "Delete fan by ID",
-        "description": "**Private — Admin/Super Admin only.**",
+        "description": "**Private — Admin only.**",
         "tags": [
           "Fans"
         ],
@@ -1223,47 +1497,44 @@ export default {
     "/users": {
       "get": {
         "summary": "Get all users",
+        "description": "**Private — Admin only.** Returns a paginated list of all user accounts.",
         "tags": [
           "Users"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search by name or email"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List of users",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "email": {
-                            "type": "string"
-                          },
-                          "role": {
-                            "type": "string"
-                          },
-                          "createdAt": {
-                            "type": "string"
-                          },
-                          "updatedAt": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Paginated list of users"
           }
         }
       }
@@ -1271,130 +1542,119 @@ export default {
     "/users/{id}": {
       "get": {
         "summary": "Get user by ID",
+        "description": "**Private — Admin only.**",
         "tags": [
           "Users"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "User found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "email": {
-                          "type": "string"
-                        },
-                        "role": {
-                          "type": "string"
-                        },
-                        "createdAt": {
-                          "type": "string"
-                        },
-                        "updatedAt": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            "description": "User found"
+          },
+          "404": {
+            "description": "User not found"
           }
         }
       },
       "patch": {
         "summary": "Update user",
+        "description": "**Private — Admin only.**",
         "tags": [
           "Users"
         ],
-        "responses": {
-          "200": {
-            "description": "User updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "email": {
-                          "type": "string"
-                        },
-                        "role": {
-                          "type": "string"
-                        },
-                        "createdAt": {
-                          "type": "string"
-                        },
-                        "updatedAt": {
-                          "type": "string"
-                        }
-                      }
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "FAN",
+                        "CELEBRITY",
+                        "ADMIN"
+                      ]
                     }
                   }
                 }
               }
             }
           }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated"
+          },
+          "404": {
+            "description": "User not found"
+          }
         }
       },
       "delete": {
         "summary": "Delete user",
+        "description": "**Private — Admin only.**",
         "tags": [
           "Users"
         ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "User deleted successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "email": {
-                          "type": "string"
-                        },
-                        "role": {
-                          "type": "string"
-                        },
-                        "createdAt": {
-                          "type": "string"
-                        },
-                        "updatedAt": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            "description": "User deleted"
+          },
+          "404": {
+            "description": "User not found"
           }
         }
       }
@@ -1402,12 +1662,20 @@ export default {
   },
   "tags": [
     {
+      "name": "Auth",
+      "description": "Authentication — registration, login, email verification, token management"
+    },
+    {
       "name": "Celebrities",
-      "description": "Celebrity profiles — public browsing, admin management"
+      "description": "Celebrity profiles — public browsing, self-application, admin management"
     },
     {
       "name": "Fans",
       "description": "Fan profile management"
+    },
+    {
+      "name": "Users",
+      "description": "User account management (Admin only)"
     }
   ]
 } as object;

@@ -14,7 +14,7 @@ export const generateSuperAdmin = async (
       name: "Super Admin",
       email: appConfig.superAdmin.email,
       password: await bcrypt.hash(appConfig.superAdmin.password, 12),
-      role: UserRole.SUPER_ADMIN,
+      roles: [UserRole.ADMIN],
     });
 
     console.log("Super admin created");

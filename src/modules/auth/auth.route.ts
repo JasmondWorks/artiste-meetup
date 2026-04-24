@@ -3,9 +3,11 @@ import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { validateRequest } from "../../middlewares/validate-request.middleware";
+import { catchAsync } from "../../utils/catch-async.util";
 import {
   loginValidator,
-  registerValidator,
+  registerFanValidator,
+  registerCelebrityValidator,
   verifyEmailValidator,
   resendOTPValidator,
 } from "./auth.validator";
@@ -18,9 +20,20 @@ const router = Router();
 
 /**
  * @openapi
- * /auth/register:
+ * tags:
+ *   - name: Auth
+ *     description: Authentication — registration, login, email verification, token management
+ */
+
+/**
+ * @openapi
+ * /auth/register/fan:
  *   post:
- *     summary: Register a new user
+ *     summary: Register as a Fan
+ *     description: >
+ *       **Public.** Creates a new user account with the `FAN` role.
+ *       A 6-digit OTP is emailed for verification. No tokens are returned
+ *       until the email is verified via `POST /auth/verify-email`.
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -28,48 +41,57 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [name, email, password, role]
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *               role:
- *                 type: string
- *                 enum: ["CUSTOMER", "ARTISTE", "ADMIN"] 
+ *             $ref: '#/components/schemas/RegisterDto'
  *     responses:
  *       201:
- *         description: >
- *           User registered successfully. A 6-digit OTP has been sent to the
- *           provided email address. No tokens are returned until the email is
- *           verified via POST /auth/verify-email.
+ *         description: Registration successful — OTP sent to email
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 message:
- *                   type: string
- *                   example: Registration successful. Please verify your email.
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       type: object
+ *               $ref: '#/components/schemas/RegisterResponse'
  *       400:
  *         description: Validation error or email already in use
  */
 router.post(
-  "/register",
-  registerValidator,
+  "/register/fan",
+  registerFanValidator,
   validateRequest,
-  authController.register.bind(authController),
+  catchAsync(authController.registerFan.bind(authController)),
+);
+
+/**
+ * @openapi
+ * /auth/register/celebrity:
+ *   post:
+ *     summary: Register as a Celebrity
+ *     description: >
+ *       **Public.** Creates a new user account with the `CELEBRITY` role.
+ *       A 6-digit OTP is emailed for verification. After verifying your email,
+ *       submit your celebrity profile via `POST /celebrities/apply` to go through
+ *       admin approval before your profile is publicly visible.
+ *     tags: [Auth]
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RegisterDto'
+ *     responses:
+ *       201:
+ *         description: Registration successful — OTP sent to email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RegisterResponse'
+ *       400:
+ *         description: Validation error or email already in use
+ */
+router.post(
+  "/register/celebrity",
+  registerCelebrityValidator,
+  validateRequest,
+  catchAsync(authController.registerCelebrity.bind(authController)),
 );
 
 /**
@@ -77,6 +99,9 @@ router.post(
  * /auth/login:
  *   post:
  *     summary: Login
+ *     description: >
+ *       **Public.** Authenticates the user and returns an access token in the
+ *       response body plus a `refreshToken` httpOnly cookie. Works for all roles.
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -84,80 +109,25 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [email, password]
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
+ *             $ref: '#/components/schemas/LoginDto'
  *     responses:
  *       200:
  *         description: Login successful
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 accessToken:
- *                   type: string
- *                 user:
- *                   type: object
+ *               $ref: '#/components/schemas/LoginResponse'
+ *       401:
+ *         description: Invalid credentials
+ *       403:
+ *         description: Email not verified (fresh OTP auto-sent)
  */
 router.post(
   "/login",
   loginValidator,
   validateRequest,
-  authController.login.bind(authController),
+  catchAsync(authController.login.bind(authController)),
 );
-
-/**
- * @openapi
- * /auth/refresh:
- *   post:
- *     summary: Refresh access token
- *     description: >
- *       Reads the `refreshToken` from the **httpOnly cookie** set at login.
- *       No request body is required — the browser sends the cookie automatically.
- *       Returns a new access token and rotates the refresh token cookie.
- *     tags: [Auth]
- *     security: []
- *     responses:
- *       200:
- *         description: Token refreshed successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 accessToken:
- *                   type: string
- *                 user:
- *                   type: object
- *       401:
- *         description: Missing or invalid refresh token cookie
- */
-router.post("/refresh", authController.handleRefreshToken.bind(authController));
-
-/**
- * @openapi
- * /auth/logout:
- *   post:
- *     summary: Logout
- *     tags: [Auth]
- *     security: []
- *     responses:
- *       200:
- *         description: Logout successful
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- */
-router.post("/logout", authController.logout.bind(authController));
 
 /**
  * @openapi
@@ -165,11 +135,10 @@ router.post("/logout", authController.logout.bind(authController));
  *   post:
  *     summary: Verify email with OTP
  *     description: >
- *       Submits the 6-digit OTP sent to the user's email during registration (or
- *       after a resend request). On success, marks the email as verified, issues
- *       an access token in the response body, and sets the refresh token as an
- *       httpOnly cookie. This is the only way to receive auth tokens after
- *       registration.
+ *       **Public.** Submits the 6-digit OTP sent to the user's email.
+ *       On success, issues an access token in the body and sets the refresh
+ *       token as an httpOnly cookie. This is the only path to receive auth
+ *       tokens after registration.
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -177,41 +146,14 @@ router.post("/logout", authController.logout.bind(authController));
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [email, otp]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@example.com
- *               otp:
- *                 type: string
- *                 minLength: 6
- *                 maxLength: 6
- *                 example: "482916"
+ *             $ref: '#/components/schemas/VerifyEmailDto'
  *     responses:
  *       200:
- *         description: >
- *           Email verified. Returns access token in body; refresh token is set
- *           as an httpOnly cookie.
+ *         description: Email verified — access token returned, refresh cookie set
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 message:
- *                   type: string
- *                   example: Email verified successfully.
- *                 data:
- *                   type: object
- *                   properties:
- *                     accessToken:
- *                       type: string
- *                     user:
- *                       type: object
+ *               $ref: '#/components/schemas/LoginResponse'
  *       400:
  *         description: Invalid or expired OTP
  *       404:
@@ -221,7 +163,7 @@ router.post(
   "/verify-email",
   verifyEmailValidator,
   validateRequest,
-  authController.verifyEmail.bind(authController),
+  catchAsync(authController.verifyEmail.bind(authController)),
 );
 
 /**
@@ -230,10 +172,8 @@ router.post(
  *   post:
  *     summary: Resend email verification OTP
  *     description: >
- *       Generates a fresh 6-digit OTP and sends it to the provided email address.
- *       Any previously issued OTP is invalidated. Only works for accounts whose
- *       email has not yet been verified. Attempting to resend for an already-verified
- *       account returns a 400 error.
+ *       **Public.** Generates a fresh OTP and emails it. Any prior OTP is
+ *       invalidated. Only works for unverified accounts.
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -241,27 +181,10 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [email]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@example.com
+ *             $ref: '#/components/schemas/ResendOTPDto'
  *     responses:
  *       200:
- *         description: OTP resent successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 message:
- *                   type: string
- *                   example: A new verification OTP has been sent to your email.
+ *         description: New OTP sent
  *       400:
  *         description: Email already verified
  *       404:
@@ -271,7 +194,44 @@ router.post(
   "/resend-verification",
   resendOTPValidator,
   validateRequest,
-  authController.resendVerificationOTP.bind(authController),
+  catchAsync(authController.resendVerificationOTP.bind(authController)),
 );
+
+/**
+ * @openapi
+ * /auth/refresh:
+ *   post:
+ *     summary: Refresh access token
+ *     description: >
+ *       **Public.** Reads the `refreshToken` httpOnly cookie set at login.
+ *       No request body required — the browser sends the cookie automatically.
+ *       Returns a new access token and rotates the refresh token cookie.
+ *     tags: [Auth]
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: Token refreshed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/LoginResponse'
+ *       401:
+ *         description: Missing or invalid refresh token
+ */
+router.post("/refresh", catchAsync(authController.handleRefreshToken.bind(authController)));
+
+/**
+ * @openapi
+ * /auth/logout:
+ *   post:
+ *     summary: Logout
+ *     description: "**Public.** Clears the refresh token cookie."
+ *     tags: [Auth]
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ */
+router.post("/logout", catchAsync(authController.logout.bind(authController)));
 
 export default router;

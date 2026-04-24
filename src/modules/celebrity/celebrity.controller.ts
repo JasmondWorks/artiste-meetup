@@ -1,6 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { Response } from "express";
 import { CelebrityService } from "./celebrity.service";
 import { sendSuccess } from "../../utils/api-response.util";
+import { AuthenticatedRequest } from "../../middlewares/auth.middleware";
+import { UserRole } from "../user/user.entity";
 
 export class CelebrityController {
   private service: CelebrityService;
@@ -9,48 +11,54 @@ export class CelebrityController {
     this.service = new CelebrityService();
   }
 
-  async getAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const result = await this.service.getAllCelebrities(req.query as Record<string, any>);
-      sendSuccess(res, result, "Celebrities retrieved successfully");
-    } catch (error) {
-      next(error);
-    }
+  private isAdminRequest(req: AuthenticatedRequest): boolean {
+    return !!req.user?.roles?.some((r) => r === UserRole.ADMIN);
   }
 
-  async getById(req: Request, res: Response, next: NextFunction) {
-    try {
-      const celebrity = await this.service.getCelebrityById(req.params.id);
-      sendSuccess(res, celebrity, "Celebrity retrieved successfully");
-    } catch (error) {
-      next(error);
-    }
+  async getAll(req: AuthenticatedRequest, res: Response) {
+    const result = await this.service.getAllCelebrities(
+      req.query as Record<string, any>,
+      this.isAdminRequest(req),
+    );
+    sendSuccess(res, result, "Celebrities retrieved successfully");
   }
 
-  async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const celebrity = await this.service.createCelebrity(req.body);
-      sendSuccess(res, celebrity, "Celebrity created successfully", 201);
-    } catch (error) {
-      next(error);
-    }
+  async getById(req: AuthenticatedRequest, res: Response) {
+    const celebrity = await this.service.getCelebrityById(
+      req.params.id,
+      this.isAdminRequest(req),
+      req.user?.id,
+    );
+    sendSuccess(res, celebrity, "Celebrity retrieved successfully");
   }
 
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const celebrity = await this.service.updateCelebrity(req.params.id, req.body);
-      sendSuccess(res, celebrity, "Celebrity updated successfully");
-    } catch (error) {
-      next(error);
-    }
+  async create(req: AuthenticatedRequest, res: Response) {
+    const celebrity = await this.service.createCelebrity(req.body);
+    sendSuccess(res, celebrity, "Celebrity created successfully", 201);
   }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      await this.service.deleteCelebrity(req.params.id);
-      sendSuccess(res, null, "Celebrity deleted successfully");
-    } catch (error) {
-      next(error);
-    }
+  async apply(req: AuthenticatedRequest, res: Response) {
+    const celebrity = await this.service.applyAsCelebrity(req.user!.id, req.body);
+    sendSuccess(res, celebrity, "Celebrity application submitted successfully", 201);
+  }
+
+  async approve(req: AuthenticatedRequest, res: Response) {
+    const celebrity = await this.service.approveCelebrity(req.params.id);
+    sendSuccess(res, celebrity, "Celebrity profile approved");
+  }
+
+  async reject(req: AuthenticatedRequest, res: Response) {
+    const celebrity = await this.service.rejectCelebrity(req.params.id, req.body.reason);
+    sendSuccess(res, celebrity, "Celebrity profile rejected");
+  }
+
+  async update(req: AuthenticatedRequest, res: Response) {
+    const celebrity = await this.service.updateCelebrity(req.params.id, req.body);
+    sendSuccess(res, celebrity, "Celebrity updated successfully");
+  }
+
+  async delete(req: AuthenticatedRequest, res: Response) {
+    await this.service.deleteCelebrity(req.params.id);
+    sendSuccess(res, null, "Celebrity deleted successfully");
   }
 }
