@@ -51,8 +51,11 @@
  *                   type: string
  *                 email:
  *                   type: string
- *                 role:
- *                   type: string
+ *                 roles:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     enum: [FAN, CELEBRITY, ADMIN]
  *             bio:
  *               type: string
  *             interests:
