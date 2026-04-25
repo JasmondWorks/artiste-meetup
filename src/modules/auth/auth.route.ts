@@ -100,8 +100,9 @@ router.post(
  *   post:
  *     summary: Login
  *     description: >
- *       **Public.** Authenticates the user and returns an access token in the
- *       response body plus a `refreshToken` httpOnly cookie. Works for all roles.
+ *       **Public.** Authenticates the user. Returns both tokens in the response
+ *       body (`accessToken`, `refreshToken`) **and** sets the refresh token as an
+ *       httpOnly cookie. Works for all roles.
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -112,11 +113,11 @@ router.post(
  *             $ref: '#/components/schemas/LoginDto'
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Login successful — both tokens returned in body; refresh token also set as httpOnly cookie
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/LoginResponse'
+ *               $ref: '#/components/schemas/AuthTokenResponse'
  *       401:
  *         description: Invalid credentials
  *       403:
@@ -136,9 +137,9 @@ router.post(
  *     summary: Verify email with OTP
  *     description: >
  *       **Public.** Submits the 6-digit OTP sent to the user's email.
- *       On success, issues an access token in the body and sets the refresh
- *       token as an httpOnly cookie. This is the only path to receive auth
- *       tokens after registration.
+ *       On success, issues both tokens in the response body (`accessToken`,
+ *       `refreshToken`) **and** sets the refresh token as an httpOnly cookie.
+ *       This is the only path to receive auth tokens after registration.
  *     tags: [Auth]
  *     security: []
  *     requestBody:
@@ -149,11 +150,11 @@ router.post(
  *             $ref: '#/components/schemas/VerifyEmailDto'
  *     responses:
  *       200:
- *         description: Email verified — access token returned, refresh cookie set
+ *         description: Email verified — both tokens returned in body; refresh token also set as httpOnly cookie
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/LoginResponse'
+ *               $ref: '#/components/schemas/AuthTokenResponse'
  *       400:
  *         description: Invalid or expired OTP
  *       404:
@@ -203,20 +204,27 @@ router.post(
  *   post:
  *     summary: Refresh access token
  *     description: >
- *       **Public.** Reads the `refreshToken` httpOnly cookie set at login.
- *       No request body required — the browser sends the cookie automatically.
- *       Returns a new access token and rotates the refresh token cookie.
+ *       **Public.** Accepts the refresh token either as a JSON body field
+ *       (`refreshToken`) **or** from the `refreshToken` httpOnly cookie set at
+ *       login — whichever is present. Body takes precedence over the cookie.
+ *       Returns a new rotated `accessToken` and `refreshToken` in the response
+ *       body, and also rotates the cookie.
  *     tags: [Auth]
  *     security: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RefreshTokenDto'
  *     responses:
  *       200:
- *         description: Token refreshed
+ *         description: Tokens rotated — both returned in body; refresh token cookie also updated
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/LoginResponse'
+ *               $ref: '#/components/schemas/AuthTokenResponse'
  *       401:
- *         description: Missing or invalid refresh token
+ *         description: No refresh token provided, or token is invalid / expired
  */
 router.post("/refresh", catchAsync(authController.handleRefreshToken.bind(authController)));
 

@@ -15,7 +15,12 @@ export class RegisterUserDto {
 
 export class LoginResponseDto {
   accessToken!: string;
+  refreshToken!: string;
   user!: User;
+}
+
+export class RefreshTokenDto {
+  refreshToken?: string;
 }
 
 export class VerifyEmailDto {
@@ -77,8 +82,19 @@ export class ResendOTPDto {
  *           type: string
  *           example: "mypassword123"
  *
- *     LoginResponse:
+ *     RefreshTokenDto:
  *       type: object
+ *       properties:
+ *         refreshToken:
+ *           type: string
+ *           description: >
+ *             Optional. If omitted the server reads the `refreshToken` httpOnly
+ *             cookie instead. Providing it in the body takes precedence over the cookie.
+ *           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *
+ *     AuthTokenResponse:
+ *       type: object
+ *       description: Returned by login, verify-email, and refresh endpoints
  *       properties:
  *         success:
  *           type: boolean
@@ -94,9 +110,15 @@ export class ResendOTPDto {
  *           properties:
  *             accessToken:
  *               type: string
- *               description: JWT bearer token — include as Authorization header
+ *               description: "Short-lived JWT — send as: Authorization: Bearer <token>"
+ *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *             refreshToken:
+ *               type: string
+ *               description: Long-lived token — also set as httpOnly cookie automatically
+ *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  *             isFirstLogin:
  *               type: boolean
+ *               description: Only present on login and verify-email responses
  *             user:
  *               $ref: '#/components/schemas/UserObject'
  *

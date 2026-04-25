@@ -88,8 +88,19 @@ export default {
           }
         }
       },
-      "LoginResponse": {
+      "RefreshTokenDto": {
         "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Optional. If omitted the server reads the `refreshToken` httpOnly cookie instead. Providing it in the body takes precedence over the cookie.\n",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        }
+      },
+      "AuthTokenResponse": {
+        "type": "object",
+        "description": "Returned by login, verify-email, and refresh endpoints",
         "properties": {
           "success": {
             "type": "boolean",
@@ -108,10 +119,17 @@ export default {
             "properties": {
               "accessToken": {
                 "type": "string",
-                "description": "JWT bearer token — include as Authorization header"
+                "description": "Short-lived JWT — send as: Authorization: Bearer <token>",
+                "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              },
+              "refreshToken": {
+                "type": "string",
+                "description": "Long-lived token — also set as httpOnly cookie automatically",
+                "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
               },
               "isFirstLogin": {
-                "type": "boolean"
+                "type": "boolean",
+                "description": "Only present on login and verify-email responses"
               },
               "user": {
                 "$ref": "#/components/schemas/UserObject"
@@ -705,7 +723,7 @@ export default {
     "/auth/login": {
       "post": {
         "summary": "Login",
-        "description": "**Public.** Authenticates the user and returns an access token in the response body plus a `refreshToken` httpOnly cookie. Works for all roles.\n",
+        "description": "**Public.** Authenticates the user. Returns both tokens in the response body (`accessToken`, `refreshToken`) **and** sets the refresh token as an httpOnly cookie. Works for all roles.\n",
         "tags": [
           "Auth"
         ],
@@ -722,11 +740,11 @@ export default {
         },
         "responses": {
           "200": {
-            "description": "Login successful",
+            "description": "Login successful — both tokens returned in body; refresh token also set as httpOnly cookie",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
+                  "$ref": "#/components/schemas/AuthTokenResponse"
                 }
               }
             }
@@ -743,7 +761,7 @@ export default {
     "/auth/verify-email": {
       "post": {
         "summary": "Verify email with OTP",
-        "description": "**Public.** Submits the 6-digit OTP sent to the user's email. On success, issues an access token in the body and sets the refresh token as an httpOnly cookie. This is the only path to receive auth tokens after registration.\n",
+        "description": "**Public.** Submits the 6-digit OTP sent to the user's email. On success, issues both tokens in the response body (`accessToken`, `refreshToken`) **and** sets the refresh token as an httpOnly cookie. This is the only path to receive auth tokens after registration.\n",
         "tags": [
           "Auth"
         ],
@@ -760,11 +778,11 @@ export default {
         },
         "responses": {
           "200": {
-            "description": "Email verified — access token returned, refresh cookie set",
+            "description": "Email verified — both tokens returned in body; refresh token also set as httpOnly cookie",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
+                  "$ref": "#/components/schemas/AuthTokenResponse"
                 }
               }
             }
@@ -812,24 +830,33 @@ export default {
     "/auth/refresh": {
       "post": {
         "summary": "Refresh access token",
-        "description": "**Public.** Reads the `refreshToken` httpOnly cookie set at login. No request body required — the browser sends the cookie automatically. Returns a new access token and rotates the refresh token cookie.\n",
+        "description": "**Public.** Accepts the refresh token either as a JSON body field (`refreshToken`) **or** from the `refreshToken` httpOnly cookie set at login — whichever is present. Body takes precedence over the cookie. Returns a new rotated `accessToken` and `refreshToken` in the response body, and also rotates the cookie.\n",
         "tags": [
           "Auth"
         ],
         "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Token refreshed",
+            "description": "Tokens rotated — both returned in body; refresh token cookie also updated",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
+                  "$ref": "#/components/schemas/AuthTokenResponse"
                 }
               }
             }
           },
           "401": {
-            "description": "Missing or invalid refresh token"
+            "description": "No refresh token provided, or token is invalid / expired"
           }
         }
       }

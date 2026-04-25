@@ -48,7 +48,11 @@ export class AuthController {
   public async login(req: Request, res: Response) {
     const { user, tokens, isFirstLogin } = await this.authService.login(req.body);
     setRefreshCookie(res, tokens.refreshToken);
-    sendSuccess(res, { accessToken: tokens.accessToken, isFirstLogin, user }, "Login successful");
+    sendSuccess(
+      res,
+      { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, isFirstLogin, user },
+      "Login successful",
+    );
   }
 
   public async verifyEmail(req: Request, res: Response) {
@@ -56,7 +60,7 @@ export class AuthController {
     setRefreshCookie(res, tokens.refreshToken);
     sendSuccess(
       res,
-      { accessToken: tokens.accessToken, isFirstLogin, user },
+      { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, isFirstLogin, user },
       "Email verified successfully",
     );
   }
@@ -67,13 +71,18 @@ export class AuthController {
   }
 
   public async handleRefreshToken(req: Request, res: Response, next: NextFunction) {
-    const refreshToken = req.cookies?.[REFRESH_TOKEN_COOKIE];
+    // Body takes precedence; cookie is the fallback (supports both clients and browsers)
+    const refreshToken = req.body?.refreshToken ?? req.cookies?.[REFRESH_TOKEN_COOKIE];
     if (!refreshToken) {
-      return next(new AppError("No refresh token", 401));
+      return next(new AppError("No refresh token provided", 401));
     }
     const { user, tokens } = await this.authService.refreshTokens(refreshToken);
     setRefreshCookie(res, tokens.refreshToken);
-    sendSuccess(res, { accessToken: tokens.accessToken, user }, "Token refreshed");
+    sendSuccess(
+      res,
+      { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, user },
+      "Token refreshed",
+    );
   }
 
   public async logout(req: Request, res: Response) {
