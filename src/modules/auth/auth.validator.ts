@@ -21,6 +21,9 @@ export const registerFanValidator = [...baseRegisterValidator];
 // POST /auth/register/celebrity — roles injected server-side, no roles field in body
 export const registerCelebrityValidator = [...baseRegisterValidator];
 
+// POST /auth/register/admin — roles injected server-side; endpoint is admin-protected
+export const registerAdminValidator = [...baseRegisterValidator];
+
 export const verifyEmailValidator = [
   body("email").isEmail().withMessage("A valid email is required"),
   body("otp")

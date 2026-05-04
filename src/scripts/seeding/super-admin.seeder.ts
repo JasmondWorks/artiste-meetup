@@ -15,7 +15,8 @@ export const generateSuperAdmin = async (
       email: appConfig.superAdmin.email,
       password: await bcrypt.hash(appConfig.superAdmin.password, 12),
       roles: [UserRole.ADMIN],
-    });
+      isEmailVerified: true, // seeded accounts skip OTP — they can log in immediately
+    } as any);
 
     console.log("Super admin created");
     return admin;

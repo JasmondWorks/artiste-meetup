@@ -45,6 +45,19 @@ export class AuthController {
     );
   }
 
+  public async registerAdmin(req: Request, res: Response) {
+    const { user } = await this.authService.register({
+      ...req.body,
+      roles: [UserRole.ADMIN],
+    });
+    sendSuccess(
+      res,
+      { user },
+      "Admin registered successfully. Check email for a 6-digit OTP.",
+      201,
+    );
+  }
+
   public async login(req: Request, res: Response) {
     const { user, tokens, isFirstLogin } = await this.authService.login(req.body);
     setRefreshCookie(res, tokens.refreshToken);

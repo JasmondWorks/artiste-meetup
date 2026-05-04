@@ -38,6 +38,9 @@ export class ResendOTPDto {
  *   schemas:
  *     RegisterDto:
  *       type: object
+ *       description: >
+ *         Request body for all three registration endpoints.
+ *         The role is determined by the endpoint called, not this body.
  *       required: [name, email, password]
  *       properties:
  *         name:

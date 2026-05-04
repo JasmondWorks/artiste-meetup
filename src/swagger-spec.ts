@@ -23,6 +23,7 @@ export default {
     "schemas": {
       "RegisterDto": {
         "type": "object",
+        "description": "Request body for all three registration endpoints. The role is determined by the endpoint called, not this body.\n",
         "required": [
           "name",
           "email",
@@ -724,6 +725,51 @@ export default {
           },
           "400": {
             "description": "Validation error or email already in use"
+          }
+        }
+      }
+    },
+    "/auth/register/admin": {
+      "post": {
+        "summary": "Register a new Admin",
+        "description": "**Private — Admin only.** Creates a new user account with the `ADMIN` role. Only an authenticated admin can call this endpoint — this prevents self-elevation by regular users. The first admin is always seeded via the server-side seed script (`npm run seedAdmin`). A 6-digit OTP is emailed to the new admin for verification. No tokens are returned until they verify via `POST /auth/verify-email`.\n",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Admin registered — OTP sent to email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or email already in use"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "403": {
+            "description": "Caller is not an admin"
           }
         }
       }
