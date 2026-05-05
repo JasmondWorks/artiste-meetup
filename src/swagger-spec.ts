@@ -21,6 +21,61 @@ export default {
       }
     },
     "schemas": {
+      "DashboardResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "bookings": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "integer"
+                  },
+                  "pending": {
+                    "type": "integer"
+                  },
+                  "confirmed": {
+                    "type": "integer"
+                  },
+                  "rejected": {
+                    "type": "integer"
+                  },
+                  "cancelled": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "chats": {
+                "type": "object",
+                "properties": {
+                  "active": {
+                    "type": "integer"
+                  },
+                  "recentActive": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ChatObject"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "RegisterDto": {
         "type": "object",
         "description": "Request body for all three registration endpoints. The role is determined by the endpoint called, not this body.\n",
@@ -198,6 +253,76 @@ export default {
           },
           "isFirstLogin": {
             "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateBookingDto": {
+        "type": "object",
+        "required": [
+          "celebrityId",
+          "timeSessionId"
+        ],
+        "properties": {
+          "celebrityId": {
+            "type": "string",
+            "example": "64a1f2b3c4d5e6f7a8b9c0d1"
+          },
+          "timeSessionId": {
+            "type": "string",
+            "example": "64a1f2b3c4d5e6f7a8b9c0d2"
+          },
+          "message": {
+            "type": "string",
+            "description": "Why you're a fan and what you'd like to discuss",
+            "example": "I've followed your career since 2018 and would love to discuss your creative process."
+          },
+          "telegramUsername": {
+            "type": "string",
+            "description": "Optional Telegram handle for seamless chat integration",
+            "example": "@ada_okafor"
+          }
+        }
+      },
+      "BookingObject": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "fanId": {
+            "type": "object",
+            "description": "Populated Fan"
+          },
+          "celebrityId": {
+            "type": "object",
+            "description": "Populated Celebrity"
+          },
+          "timeSessionId": {
+            "type": "object",
+            "description": "Populated TimeSession"
+          },
+          "message": {
+            "type": "string"
+          },
+          "telegramUsername": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "REJECTED",
+              "CANCELLED"
+            ]
           },
           "createdAt": {
             "type": "string",
@@ -506,6 +631,158 @@ export default {
           }
         }
       },
+      "CreateChatDto": {
+        "type": "object",
+        "required": [
+          "fanId",
+          "celebrityId",
+          "telegramUsername"
+        ],
+        "properties": {
+          "fanId": {
+            "type": "string",
+            "example": "64a1f2b3c4d5e6f7a8b9c0d1"
+          },
+          "celebrityId": {
+            "type": "string",
+            "example": "64a1f2b3c4d5e6f7a8b9c0d2"
+          },
+          "bookingId": {
+            "type": "string",
+            "description": "Optional linked booking",
+            "example": "64a1f2b3c4d5e6f7a8b9c0d3"
+          },
+          "telegramUsername": {
+            "type": "string",
+            "example": "@ada_okafor"
+          }
+        }
+      },
+      "UpdateChatDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "telegramUsername": {
+            "type": "string"
+          }
+        }
+      },
+      "ChatObject": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "fanId": {
+            "type": "object",
+            "description": "Populated Fan"
+          },
+          "celebrityId": {
+            "type": "object",
+            "description": "Populated Celebrity"
+          },
+          "bookingId": {
+            "type": "string"
+          },
+          "telegramUsername": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateFanReviewDto": {
+        "type": "object",
+        "required": [
+          "celebrityId",
+          "rating"
+        ],
+        "properties": {
+          "celebrityId": {
+            "type": "string",
+            "example": "64a1f2b3c4d5e6f7a8b9c0d1"
+          },
+          "bookingId": {
+            "type": "string",
+            "description": "Optional linked booking"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5,
+            "example": 4.5
+          },
+          "comment": {
+            "type": "string",
+            "example": "Amazing session, very engaging and insightful!"
+          }
+        }
+      },
+      "UpdateFanReviewDto": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "comment": {
+            "type": "string"
+          }
+        }
+      },
+      "FanReviewObject": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "fanId": {
+            "type": "object",
+            "description": "Populated Fan"
+          },
+          "celebrityId": {
+            "type": "object",
+            "description": "Populated Celebrity"
+          },
+          "bookingId": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "CreateFanDto": {
         "type": "object",
         "properties": {
@@ -646,6 +923,176 @@ export default {
               "totalPages": {
                 "type": "integer",
                 "example": 10
+              }
+            }
+          }
+        }
+      },
+      "CreateTimeSessionDto": {
+        "type": "object",
+        "required": [
+          "celebrityId",
+          "date",
+          "startTime",
+          "endTime"
+        ],
+        "properties": {
+          "celebrityId": {
+            "type": "string",
+            "description": "Celebrity MongoDB ObjectId",
+            "example": "64a1f2b3c4d5e6f7a8b9c0d1"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-06-15"
+          },
+          "startTime": {
+            "type": "string",
+            "example": "10:00"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "11:00"
+          }
+        }
+      },
+      "UpdateTimeSessionDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
+      },
+      "TimeSessionObject": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "celebrityId": {
+            "type": "object",
+            "description": "Populated Celebrity"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "isBooked": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateMyProfileDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Ada Okafor"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "+2348012345678"
+          },
+          "country": {
+            "type": "string",
+            "example": "Nigeria"
+          },
+          "bio": {
+            "type": "string",
+            "example": "Software engineer and music lover."
+          },
+          "profilePicture": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://cdn.example.com/avatars/ada.jpg"
+          }
+        }
+      },
+      "UserProfileResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "roles": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "FAN",
+                    "CELEBRITY",
+                    "ADMIN"
+                  ]
+                }
+              },
+              "phoneNumber": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              },
+              "bio": {
+                "type": "string"
+              },
+              "profilePicture": {
+                "type": "string"
+              },
+              "isEmailVerified": {
+                "type": "boolean"
+              },
+              "isFirstLogin": {
+                "type": "boolean"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
               }
             }
           }
@@ -926,6 +1373,274 @@ export default {
         "responses": {
           "200": {
             "description": "Logged out successfully"
+          }
+        }
+      }
+    },
+    "/bookings/my": {
+      "get": {
+        "summary": "Get my bookings",
+        "description": "**Private — Any authenticated user.** Returns all bookings made by the current user.",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "CONFIRMED",
+                "REJECTED",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of your bookings"
+          }
+        }
+      }
+    },
+    "/bookings": {
+      "post": {
+        "summary": "Create a booking",
+        "description": "**Private — Any authenticated user.** Books a specific time session with a celebrity. The slot is locked immediately on creation (status: PENDING). An admin must confirm or reject it.\n",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Booking created (PENDING)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Time slot already booked or validation error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all bookings",
+        "description": "**Private — Admin only.**",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "CONFIRMED",
+                "REJECTED",
+                "CANCELLED"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of all bookings"
+          }
+        }
+      }
+    },
+    "/bookings/{id}/cancel": {
+      "patch": {
+        "summary": "Cancel a booking",
+        "description": "**Private — Booking owner only.** Only PENDING bookings can be cancelled.",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking cancelled — time slot released"
+          },
+          "400": {
+            "description": "Booking already cancelled or confirmed"
+          },
+          "403": {
+            "description": "Not your booking"
+          }
+        }
+      }
+    },
+    "/bookings/{id}": {
+      "get": {
+        "summary": "Get booking by ID",
+        "description": "**Private — Admin only.**",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking found"
+          },
+          "404": {
+            "description": "Booking not found"
+          }
+        }
+      }
+    },
+    "/bookings/{id}/confirm": {
+      "patch": {
+        "summary": "Confirm a booking",
+        "description": "**Private — Admin only.** Confirms a PENDING booking. If the booking has a `telegramUsername`, a Chat record is automatically created.\n",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking confirmed — chat auto-created if telegramUsername present"
+          },
+          "400": {
+            "description": "Only pending bookings can be confirmed"
+          }
+        }
+      }
+    },
+    "/bookings/{id}/reject": {
+      "patch": {
+        "summary": "Reject a booking",
+        "description": "**Private — Admin only.** Rejects a PENDING booking and releases the time slot.",
+        "tags": [
+          "Bookings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking rejected — time slot released"
+          },
+          "400": {
+            "description": "Only pending bookings can be rejected"
           }
         }
       }
@@ -1314,6 +2029,458 @@ export default {
         }
       }
     },
+    "/chats/my": {
+      "get": {
+        "summary": "Get my chats",
+        "description": "**Private — Any authenticated user.** Returns chats where the current user is the fan.",
+        "tags": [
+          "Chats"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of your chats"
+          }
+        }
+      }
+    },
+    "/chats": {
+      "get": {
+        "summary": "Get all chats",
+        "description": "**Private — Admin only.**",
+        "tags": [
+          "Chats"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "INACTIVE"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of all chats"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a chat manually",
+        "description": "**Private — Admin only.** Manually creates a chat record. Chats are also auto-created when a booking with a `telegramUsername` is confirmed.\n",
+        "tags": [
+          "Chats"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Chat created"
+          }
+        }
+      }
+    },
+    "/chats/{id}": {
+      "get": {
+        "summary": "Get chat by ID",
+        "description": "**Private — Admin only.**",
+        "tags": [
+          "Chats"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat found"
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update chat status or telegram username",
+        "description": "**Private — Admin only.**",
+        "tags": [
+          "Chats"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateChatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a chat",
+        "description": "**Private — Admin only.**",
+        "tags": [
+          "Chats"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat deleted"
+          }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "summary": "Get dashboard statistics",
+        "description": "**Private — Admin only.** Returns aggregated platform stats: total/pending/confirmed/rejected/cancelled bookings and active chat count with recent active chat details.\n",
+        "tags": [
+          "Dashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews/celebrity/{celebrityId}": {
+      "get": {
+        "summary": "Get reviews for a celebrity",
+        "description": "**Public.** Returns all reviews for a specific celebrity.",
+        "tags": [
+          "FanReviews"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "celebrityId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of reviews"
+          }
+        }
+      }
+    },
+    "/reviews": {
+      "post": {
+        "summary": "Submit a review",
+        "description": "**Private — Any authenticated user.** One review per fan per celebrity.",
+        "tags": [
+          "FanReviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFanReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review submitted"
+          },
+          "400": {
+            "description": "Already reviewed this celebrity"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all reviews",
+        "description": "**Private — Admin only.**",
+        "tags": [
+          "FanReviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of all reviews"
+          }
+        }
+      }
+    },
+    "/reviews/{id}": {
+      "patch": {
+        "summary": "Update your review",
+        "description": "**Private — Review owner only.**",
+        "tags": [
+          "FanReviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFanReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review updated"
+          },
+          "403": {
+            "description": "Not your review"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a review",
+        "description": "**Private — Review owner or Admin.**",
+        "tags": [
+          "FanReviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review deleted"
+          },
+          "403": {
+            "description": "Not your review"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get review by ID",
+        "description": "**Private — Admin only.**",
+        "tags": [
+          "FanReviews"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review found"
+          },
+          "404": {
+            "description": "Review not found"
+          }
+        }
+      }
+    },
     "/fans/me": {
       "get": {
         "summary": "Get my fan profile",
@@ -1575,6 +2742,288 @@ export default {
         }
       }
     },
+    "/time-sessions/celebrity/{celebrityId}": {
+      "get": {
+        "summary": "Get available slots for a celebrity",
+        "description": "**Public.** Returns only unbooked time sessions for the given celebrity.",
+        "tags": [
+          "TimeSessions"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "celebrityId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of available time sessions"
+          }
+        }
+      }
+    },
+    "/time-sessions/{id}": {
+      "get": {
+        "summary": "Get time session by ID",
+        "description": "**Public.**",
+        "tags": [
+          "TimeSessions"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time session found"
+          },
+          "404": {
+            "description": "Time session not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a time session",
+        "description": "**Private — Admin only.** Cannot edit a session that is already booked.",
+        "tags": [
+          "TimeSessions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTimeSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Time session updated"
+          },
+          "400": {
+            "description": "Cannot edit a booked session"
+          },
+          "404": {
+            "description": "Time session not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a time session",
+        "description": "**Private — Admin only.** Cannot delete a session that is already booked.",
+        "tags": [
+          "TimeSessions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time session deleted"
+          },
+          "400": {
+            "description": "Cannot delete a booked session"
+          },
+          "404": {
+            "description": "Time session not found"
+          }
+        }
+      }
+    },
+    "/time-sessions": {
+      "get": {
+        "summary": "Get all time sessions",
+        "description": "**Private — Admin only.** Returns all time sessions with optional filtering.",
+        "tags": [
+          "TimeSessions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "celebrityId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "isBooked",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of time sessions"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a time session",
+        "description": "**Private — Admin only.** Creates an available time slot for a celebrity.",
+        "tags": [
+          "TimeSessions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTimeSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Time session created"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "Get my profile",
+        "description": "**Private — Any authenticated user.** Returns the current user's full profile.",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update my profile",
+        "description": "**Private — Any authenticated user.** Updates name, phone, country, bio, or profilePicture. Cannot change email, password, or roles here.",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "summary": "Get all users",
@@ -1747,12 +3196,32 @@ export default {
       "description": "Authentication — registration, login, email verification, token management"
     },
     {
+      "name": "Bookings",
+      "description": "Fan session bookings with celebrities"
+    },
+    {
       "name": "Celebrities",
       "description": "Celebrity profiles — public browsing, self-application, admin management"
     },
     {
+      "name": "Chats",
+      "description": "Telegram chat integration records"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Platform-wide statistics for admins"
+    },
+    {
+      "name": "FanReviews",
+      "description": "Fan ratings and reviews for celebrities"
+    },
+    {
       "name": "Fans",
       "description": "Fan profile management"
+    },
+    {
+      "name": "TimeSessions",
+      "description": "Celebrity availability time slots"
     },
     {
       "name": "Users",
