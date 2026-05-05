@@ -3,7 +3,7 @@ import { UserController } from "./user.controller";
 import { protect, restrictTo } from "../../middlewares/auth.middleware";
 import { validateRequest } from "../../middlewares/validate-request.middleware";
 import { catchAsync } from "../../utils/catch-async.util";
-import { updateUserValidator } from "./user.validator";
+import { updateUserValidator, updateMyProfileValidator } from "./user.validator";
 import { UserRole } from "./user.entity";
 
 const controller = new UserController();
@@ -17,6 +17,54 @@ const router = Router();
  */
 
 router.use(protect);
+
+/**
+ * @openapi
+ * /users/me:
+ *   get:
+ *     summary: Get my profile
+ *     description: "**Private — Any authenticated user.** Returns the current user's full profile."
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserProfileResponse'
+ */
+router.get("/me", catchAsync(controller.getMe.bind(controller)));
+
+/**
+ * @openapi
+ * /users/me:
+ *   patch:
+ *     summary: Update my profile
+ *     description: "**Private — Any authenticated user.** Updates name, phone, country, bio, or profilePicture. Cannot change email, password, or roles here."
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateMyProfileDto'
+ *     responses:
+ *       200:
+ *         description: Profile updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserProfileResponse'
+ */
+router.patch(
+  "/me",
+  updateMyProfileValidator,
+  validateRequest,
+  catchAsync(controller.updateMe.bind(controller)),
+);
 
 /**
  * @openapi

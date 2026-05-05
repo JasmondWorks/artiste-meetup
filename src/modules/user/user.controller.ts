@@ -1,12 +1,23 @@
 import { Request, Response } from "express";
 import { UserService } from "./user.service";
 import { sendSuccess } from "../../utils/api-response.util";
+import { AuthenticatedRequest } from "../../middlewares/auth.middleware";
 
 export class UserController {
   private userService: UserService;
 
   constructor() {
     this.userService = new UserService();
+  }
+
+  async getMe(req: AuthenticatedRequest, res: Response) {
+    const user = await this.userService.getUserById(req.user!.id);
+    sendSuccess(res, user, "Profile retrieved successfully");
+  }
+
+  async updateMe(req: AuthenticatedRequest, res: Response) {
+    const user = await this.userService.updateUser(req.user!.id, req.body);
+    sendSuccess(res, user, "Profile updated successfully");
   }
 
   async getAllUsers(req: Request, res: Response) {
