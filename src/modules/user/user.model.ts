@@ -6,6 +6,10 @@ export interface IUser extends Document {
   email: string;
   password: string;
   roles: UserRole[];
+  phoneNumber?: string;
+  country?: string;
+  bio?: string;
+  profilePicture?: string;
   isEmailVerified: boolean;
   isFirstLogin: boolean;
   emailVerificationOTP?: string;
@@ -24,6 +28,10 @@ const UserSchema = new Schema<IUser>(
       enum: Object.values(UserRole),
       required: true,
     },
+    phoneNumber: { type: String, trim: true },
+    country: { type: String, trim: true },
+    bio: { type: String },
+    profilePicture: { type: String },
     isEmailVerified: { type: Boolean, default: false },
     isFirstLogin: { type: Boolean, default: true },
     emailVerificationOTP: { type: String, select: false },
