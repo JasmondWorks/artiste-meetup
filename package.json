@@ -4,9 +4,9 @@
   "description": "REST API backend for Artiste Meetup platform",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/server.js",
-    "build": "tsc",
-    "dev": "npx ts-node-dev -r dotenv/config --files src/server.ts",
+    "start": "node init && node dist/server.js",
+    "build": "node init && tsc",
+    "dev": "node init && npx ts-node-dev -r dotenv/config --files src/server.ts",
     "generate-swagger": "npx ts-node -r dotenv/config src/scripts/generate-swagger.ts",
     "seedData": "npx ts-node -r dotenv/config src/scripts/seed.ts",
     "seedAdmin": "npx ts-node -r dotenv/config src/scripts/seeding/super-admin.seeder.ts"
@@ -24,6 +24,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.1",
     "ms": "^2.1.3",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^8.0.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
