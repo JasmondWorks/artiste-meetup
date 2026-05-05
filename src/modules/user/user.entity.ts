@@ -3,6 +3,10 @@ export interface User {
   name: string;
   email: string;
   roles: UserRole[];
+  phoneNumber?: string;
+  country?: string;
+  bio?: string;
+  profilePicture?: string;
   isEmailVerified: boolean;
   isFirstLogin: boolean;
   createdAt: Date;
