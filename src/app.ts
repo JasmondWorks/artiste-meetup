@@ -15,7 +15,8 @@ const app = express();
 // unless we register app.options("*", cors()) explicitly.
 // ---------------------------------------------------------------------------
 const ALLOWED_ORIGINS = [
-  process.env.CLIENT_URL,          // production frontend (set in Vercel dashboard)
+  process.env.CLIENT_URL,   
+  "https://celebrity-app.onrender.com", // Render frontend       // production frontend (set in Vercel dashboard)
   "http://localhost:3000",
   "http://localhost:5173",          // Vite default
   "http://localhost:8000",          // local Swagger / API port,
